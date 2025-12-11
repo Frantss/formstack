@@ -146,7 +146,7 @@ describe('while submitting', async () => {
   const { form } = await setup({ values: validValues });
 
   const submitting = viPromise();
-const submit= form.submit(submitting.fn)();
+  const submit = form.submit(submitting.fn)();
 
   it('should mark the form as submitting', () => {
     expect(form.store.state.status.submitting).toBe(true);
