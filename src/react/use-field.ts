@@ -1,5 +1,5 @@
 import { FieldApi, type FieldOptions, type FieldProps } from '#/core/field-api';
-import type { FieldMeta, FieldResetOptions, FieldSetErrorsMode, FormIssue, ValidateOptions } from '#/core/form-api.types';
+import type { FieldMeta, FieldResetOptions, FieldSetErrorOptions, FormIssue, ValidateOptions } from '#/core/form-api.types';
 
 import type { DeepKeys, DeepValue } from '#/core/more-types';
 import type { EventLike, SchemaLike, StandardSchema } from '#/core/types';
@@ -16,7 +16,7 @@ export type UseFieldReturn<Value> = {
   register: () => void;
   validate: (options?: ValidateOptions) => Promise<FormIssue[]>;
   reset: (options?: FieldResetOptions<Value>) => void;
-  setErrors: (errors: FormIssue[], mode?: FieldSetErrorsMode) => void;
+  setErrors: (errors: FormIssue[], options?: FieldSetErrorOptions) => void;
   props: FieldProps<Value>;
   meta: FieldMeta;
   errors: FormIssue[];

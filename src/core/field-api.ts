@@ -2,7 +2,7 @@ import type { FormApi } from '#/core/form-api';
 import type {
   FieldMeta,
   FieldResetOptions,
-  FieldSetErrorsMode,
+  FieldSetErrorOptions,
   FormIssue,
   ValidateOptions
 } from '#/core/form-api.types';
@@ -125,7 +125,7 @@ export class FieldApi<
    * @param errors - Array of validation errors to set
    * @param mode - How to handle existing errors: 'replace' (default), 'append', or 'keep'
    */
-  public setErrors = (errors: FormIssue[], mode?: FieldSetErrorsMode) => {
-    return this.form.setErrors(this.options.name, errors, mode);
+  public setErrors = (errors: FormIssue[], options?: FieldSetErrorOptions) => {
+    return this.form.setErrors(this.options.name, errors, options);
   }
 }

@@ -1,6 +1,7 @@
 import { defaultMeta, defaultStatus } from '#/core/field-api.constants';
 import type {
   FieldMeta,
+  FieldSetErrorOptions,
   FormBaseStore,
   FormIssue,
   FormOptions,
@@ -253,13 +254,13 @@ export class FormApi<
   public setErrors = <Name extends Field>(
     name: Name,
     errors: FormIssue[],
-    mode: 'replace' | 'append' | 'keep' = 'replace',
+    options?: FieldSetErrorOptions,
   ) => {
     this.persisted.setState(current => {
       const existing = current.errors[name] ?? [];
       let updated: FormIssue[];
 
-      switch (mode) {
+      switch (options?.mode) {
         case 'append':
           updated = [...existing, ...errors];
           break;

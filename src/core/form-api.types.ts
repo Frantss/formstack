@@ -90,3 +90,7 @@ export type FieldResetOptions<Value> = {
 };
 
 export type FieldSetErrorsMode = 'replace' | 'append' | 'keep';
+
+export type FieldSetErrorOptions = {
+  mode?: FieldSetErrorsMode;
+}
