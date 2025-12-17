@@ -222,10 +222,10 @@ describe('submit with async onSuccess callback', async () => {
 
   it('should handle async success callbacks', async () => {
     expect(form.store.state.status.submitting).toBe(true);
-    
+
     await asyncSuccess.release();
     await submit;
-    
+
     expect(onSuccess).toHaveBeenCalledOnce();
     expect(form.store.state.status.submitting).toBe(false);
     expect(form.store.state.status.successful).toBe(true);
@@ -241,10 +241,10 @@ describe('submit with async onError callback', async () => {
 
   it('should handle async error callbacks', async () => {
     expect(form.store.state.status.submitting).toBe(true);
-    
+
     await asyncError.release();
     await submit;
-    
+
     expect(onError).toHaveBeenCalledOnce();
     expect(form.store.state.status.submitting).toBe(false);
     expect(form.store.state.status.successful).toBe(false);
@@ -402,8 +402,8 @@ it('should set dirty status to true when submit is called', async () => {
   const { form } = await setup({ values: validValues });
 
   expect(form.store.state.status.dirty).toBe(false);
-  
+
   await form.submit(() => {})();
-  
+
   expect(form.store.state.status.dirty).toBe(true);
 });

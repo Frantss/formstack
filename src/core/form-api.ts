@@ -249,6 +249,38 @@ export class FormApi<
     return this.store.state.errors[name as never] ?? [];
   };
 
+  public setErrors = <Name extends Field>(
+    name: Name,
+    errors: FormIssue[],
+    mode: 'replace' | 'append' | 'keep' = 'replace',
+  ) => {
+    this.persisted.setState(current => {
+      const existing = current.errors[name] ?? [];
+      let updated: FormIssue[];
+
+      switch (mode) {
+        case 'append':
+          updated = [...existing, ...errors];
+          break;
+        case 'keep':
+          updated = existing.length > 0 ? existing : errors;
+          break;
+        case 'replace':
+        default:
+          updated = errors;
+          break;
+      }
+
+      return {
+        ...current,
+        errors: {
+          ...current.errors,
+          [name]: updated,
+        },
+      };
+    });
+  };
+
   public submit =
     (
       onSuccess: (data: StandardSchema.InferOutput<Schema>, form: typeof this) => void | Promise<void>,
@@ -314,7 +346,7 @@ export class FormApi<
     const path = stringToPath(name as never);
     const defaultValue = get(this.options.defaultValues, path) as DeepValue<Values, Name>;
     const value = options?.value ?? defaultValue;
-    
+
     this.persisted.setState(current => {
       const values = setPath(current.values as never, path as any, value as never);
       const fields = { ...current.fields };

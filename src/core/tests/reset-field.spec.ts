@@ -365,7 +365,7 @@ describe('resetField with options', () => {
         },
         keep: {
           meta: true,
-        }
+        },
       });
 
       expect(form.get('name')).toBe('Default Name');
