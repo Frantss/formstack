@@ -1,8 +1,8 @@
-import type { StandardSchemaV1 } from '@standard-schema/spec';
+import type { StandardSchema } from '#/core/types';
 
-export const validate = async <Schema extends StandardSchemaV1>(schema: Schema, input: unknown) => {
+export const validate = async <Schema extends StandardSchema>(schema: Schema, input: unknown) => {
   let result = schema['~standard'].validate(input);
   if (result instanceof Promise) result = await result;
 
-  return result as StandardSchemaV1.Result<StandardSchemaV1.InferOutput<Schema>>;
+  return result as StandardSchema.Result<StandardSchema.InferOutput<Schema>>;
 };

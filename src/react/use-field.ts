@@ -1,9 +1,9 @@
 import { FieldApi, type FieldOptions, type FieldProps } from '#/core/field-api';
-import { type FieldMeta } from '#/core/form-api';
+import type { FieldMeta, FormIssue } from '#/core/field-api.types';
+
 import type { DeepKeys, DeepValue } from '#/core/more-types';
-import type { EventLike, SchemaLike } from '#/core/types';
+import type { EventLike, SchemaLike, StandardSchema } from '#/core/types';
 import { useIsomorphicLayoutEffect } from '#/react/use-isomorphic-layout-effect';
-import type { StandardSchemaV1 } from '@standard-schema/spec';
 import { useStore } from '@tanstack/react-store';
 import { useCallback, useMemo, useState } from 'react';
 
@@ -16,13 +16,13 @@ export type UseFieldReturn<Value> = {
   register: () => void;
   props: FieldProps<Value>;
   meta: FieldMeta;
-  errors: StandardSchemaV1.Issue[];
+  errors: FormIssue[];
 };
 
-export const useField = <Schema extends SchemaLike, Name extends DeepKeys<StandardSchemaV1.InferInput<Schema>>>(
+export const useField = <Schema extends SchemaLike, Name extends DeepKeys<StandardSchema.InferInput<Schema>>>(
   options: FieldOptions<Schema, Name>,
 ) => {
-  type Value = DeepValue<StandardSchemaV1.InferInput<Schema>, Name>;
+  type Value = DeepValue<StandardSchema.InferInput<Schema>, Name>;
 
   const [api] = useState(() => {
     return new FieldApi({ ...options });

@@ -1,5 +1,6 @@
 import { FormApi } from '#/core/form-api';
 import { useField } from '#/react/use-field';
+import { useForm } from '#/react/use-form';
 import 'react';
 import { expect, it, test } from 'vitest';
 import { render } from 'vitest-browser-react';
@@ -27,6 +28,7 @@ const setup = async () => {
   });
 
   const Component = () => {
+    void useForm({ form });
     const field = useField({ form, name: 'name' });
 
     return (
@@ -53,7 +55,7 @@ it("should update the form's values on change", async () => {
   await userEvent.clear(ui.input);
   await userEvent.type(ui.input, 'Jane');
 
-  expect(form.store.state.values.name).toBe('Jane');
+  await expect.poll(() => form.store.state.values.name).toBe('Jane');
 });
 
 it('should mark the field as touched on focus', async () => {

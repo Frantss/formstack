@@ -1,4 +1,5 @@
-import { FormApi, type FormOptions } from '#/core/form-api';
+import type { FormOptions } from '#/core/field-api.types';
+import { FormApi } from '#/core/form-api';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import z from 'zod';
 
@@ -33,6 +34,8 @@ const setup = async ({
     defaultValues: values,
     validate,
   });
+
+  form['~mount']();
 
   return { form };
 };
@@ -98,7 +101,7 @@ describe('on change', async () => {
       },
     });
 
-    form.set('name', 2 as any);
+    form.change('name', 2 as any);
 
     expect(spy).toHaveBeenCalledWith({ ...values, name: 2 });
     await expect.poll(() => form.store.state.status.valid).toBe(false);
@@ -136,7 +139,7 @@ describe('on touch', async () => {
 
     form.focus('name');
 
-    expect.poll(() => spy).toHaveBeenCalledWith({ ...values, name: 2 });
+    expect(spy).toHaveBeenCalledWith({ ...values, name: 2 });
     await expect.poll(() => form.store.state.status.valid).toBe(false);
   });
 });

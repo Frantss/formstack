@@ -1,82 +1,20 @@
+import { defaultMeta, defaultStatus } from '#/core/field-api.constants';
+import type {
+  FieldMeta,
+  FormBaseStore,
+  FormIssue,
+  FormOptions,
+  FormStore,
+  PersistedFieldMeta,
+  PersistedFormStatus,
+} from '#/core/field-api.types';
 import type { DeepKeys, DeepValue } from '#/core/more-types';
-import type { SchemaLike } from '#/core/types';
+import type { SchemaLike, StandardSchema } from '#/core/types';
 import { get } from '#/utils/get';
 import { validate } from '#/utils/validate';
 import type { StandardSchemaV1 } from '@standard-schema/spec';
-import { batch, Store } from '@tanstack/store';
+import { Derived, Store } from '@tanstack/store';
 import { isDeepEqual, isFunction, mergeDeep, setPath, stringToPath } from 'remeda';
-import type { PartialDeep } from 'type-fest';
-
-export type FormStatus = {
-  submitted: boolean;
-  submits: number;
-  submitting: boolean;
-  valid: boolean;
-  validating: boolean;
-  dirty: boolean;
-  successful: boolean;
-};
-
-const defaultStatus = {
-  submitted: false,
-  submits: 0,
-  submitting: false,
-  valid: true,
-  validating: false,
-  dirty: false,
-  successful: false,
-} satisfies FormStatus;
-
-export type FieldMeta = {
-  blurred: boolean;
-  touched: boolean;
-  dirty: boolean;
-  default: boolean;
-  valid: boolean;
-  pristine: boolean;
-};
-
-const defaultMeta = {
-  blurred: false,
-  touched: false,
-  dirty: false,
-  pristine: false,
-  default: true,
-  valid: true,
-} satisfies FieldMeta;
-
-type FormStore<Schema extends SchemaLike> = {
-  values: StandardSchemaV1.InferInput<Schema>;
-  fields: Record<string, FieldMeta>;
-  refs: Record<string, HTMLElement | null>;
-  status: FormStatus;
-  errors: Record<string, StandardSchemaV1.Issue[]>;
-};
-
-export type FieldControl<Value> = {
-  focus: () => void;
-  blur: () => void;
-  change: (value: Value) => void;
-  register: (element: HTMLElement | null) => void;
-};
-
-type FormValidatorSchema<Schema extends SchemaLike> = NoInfer<
-  StandardSchemaV1<PartialDeep<StandardSchemaV1.InferInput<Schema>>>
->;
-type FormValidatorFunction<Schema extends SchemaLike> = (store: FormStore<Schema>) => FormValidatorSchema<Schema>;
-type FormValidator<Schema extends SchemaLike> = FormValidatorSchema<Schema> | FormValidatorFunction<Schema>;
-
-export type FormOptions<Schema extends SchemaLike> = {
-  schema: Schema;
-  values?: StandardSchemaV1.InferInput<Schema>;
-  defaultValues: StandardSchemaV1.InferInput<Schema>;
-  validate?: {
-    change?: FormValidator<Schema>;
-    submit?: FormValidator<Schema>;
-    blur?: FormValidator<Schema>;
-    focus?: FormValidator<Schema>;
-  };
-};
 
 export class FormApi<
   Schema extends SchemaLike,
@@ -84,22 +22,62 @@ export class FormApi<
   Field extends DeepKeys<Values> = DeepKeys<Values>,
 > {
   public options!: FormOptions<Schema>;
-  public store!: Store<FormStore<Schema>>;
+  private persisted: Store<FormBaseStore<Schema>>;
+  public store!: Derived<FormStore<Schema>>;
 
   constructor(options: FormOptions<Schema>) {
     this.options = options;
 
-    this.store = new Store<FormStore<Schema>>({
+    this.persisted = new Store<FormBaseStore<Schema>>({
       values: mergeDeep(options.defaultValues as never, options.values ?? {}),
       fields: {},
       refs: {},
       status: defaultStatus,
       errors: {},
     });
+
+    this.store = new Derived<FormStore<Schema>>({
+      deps: [this.persisted],
+      fn: ({ currDepVals }) => {
+        const persisted = currDepVals[0] as FormBaseStore<Schema>;
+
+        const invalid = Object.values(persisted.errors).some(issues => issues.length > 0);
+        const dirty = Object.values(persisted.fields).some(meta => meta.dirty);
+        const fields = Object.fromEntries(
+          Object.entries(persisted.fields).map(([key, meta]) => {
+            const path = stringToPath(key);
+            const value = get(persisted.values, path);
+            const defaultValue = get(this.options.defaultValues, path);
+            const invalid = persisted.errors[key]?.length > 0;
+
+            return [
+              key,
+              {
+                ...meta,
+                default: isDeepEqual(value, defaultValue),
+                pristine: !meta.dirty,
+                valid: !invalid,
+              } satisfies FieldMeta,
+            ];
+          }),
+        );
+
+        return {
+          ...persisted,
+          fields,
+          status: {
+            ...persisted.status,
+            submitted: persisted.status.submits > 0,
+            valid: !invalid,
+            dirty: persisted.status.dirty || dirty,
+          },
+        };
+      },
+    });
   }
 
   public '~mount' = () => {
-    const unsubscribe = () => {};
+    const unsubscribe = this.store.mount();
 
     return unsubscribe;
   };
@@ -133,6 +111,8 @@ export class FormApi<
 
     if (!validator) return [];
 
+    this.setStatus({ validating: true });
+
     const { issues: allIssues } = await validate(validator, this.store.state.values);
     const fields = field ? (Array.isArray(field) ? field : [field]) : undefined;
 
@@ -149,10 +129,10 @@ export class FormApi<
       };
     }, {} as any);
 
-    this.store.setState(current => {
+    this.persisted.setState(current => {
       // existing errors from non validated fields
       const existing = Object.fromEntries(
-        Object.entries(current.errors ?? {}).filter(([key]) => !fields?.includes(key as never)),
+        Object.entries(current.errors).filter(([key]) => !fields?.includes(key as never)),
       );
 
       return {
@@ -164,68 +144,50 @@ export class FormApi<
       };
     });
 
+    this.setStatus({ validating: false });
+
     return issues;
   };
 
-  private updateFieldMeta = (
-    name: string,
-    meta: Partial<Pick<FieldMeta, 'dirty' | 'blurred' | 'touched' | 'valid'>>,
-  ) => {
-    const defaultValue = get(this.options.defaultValues as never, stringToPath(name));
-    const value = this.get(name as never);
-
-    const base = {
-      ...defaultMeta,
-      ...this.store.state.fields[name],
-      ...meta,
-    };
-
-    this.store.setState(current => {
+  private setFieldMeta = (name: string, meta: Partial<PersistedFieldMeta>) => {
+    this.persisted.setState(current => {
       return {
         ...current,
-        status: {
-          ...current.status,
-          dirty: base.dirty,
-        },
         fields: {
           ...current.fields,
           [name]: {
-            ...base,
-            pristine: !base.dirty,
-            valid: true, // todo
-            default: isDeepEqual(defaultValue, value),
+            ...defaultMeta,
+            ...this.persisted.state.fields[name],
+            ...meta,
           },
         },
       };
     });
   };
 
-  // private updateStatus = (status: Partial<FormStatus>) => {
-  //   this.store.setState(current => {
-  //     return {
-  //       ...current,
-  //       status: {
-  //         ...current.status,
-  //         ...status,
-  //       },
-  //     };
-  //   });
-  // };
-
-  public set = <Name extends Field>(name: Name, value: DeepValue<Values, Name>) => {
-    const values = setPath(this.store.state.values as never, stringToPath(name as never) as any, value as never);
-
-    batch(async () => {
-      this.store.setState(current => {
-        return {
-          ...current,
-          values,
-        };
-      });
-
-      await this.validate(name as never, { type: 'change' });
-      this.updateFieldMeta(name as never, { dirty: true });
+  private setStatus = (status: Partial<PersistedFormStatus>) => {
+    this.persisted.setState(current => {
+      return {
+        ...current,
+        status: {
+          ...current.status,
+          ...status,
+        },
+      };
     });
+  };
+
+  public change = <Name extends Field>(name: Name, value: DeepValue<Values, Name>) => {
+    const values = setPath(this.store.state.values as never, stringToPath(name as never) as any, value as never);
+    this.persisted.setState(current => {
+      return {
+        ...current,
+        values,
+      };
+    });
+
+    this.setFieldMeta(name as never, { dirty: true, touched: true });
+    void this.validate(name as never, { type: 'change' });
   };
 
   public focus = <Name extends Field>(name: Name) => {
@@ -233,10 +195,8 @@ export class FormApi<
 
     if (ref) ref.focus();
 
-    batch(async () => {
-      await this.validate(name as never, { type: 'focus' });
-      this.updateFieldMeta(name as never, { touched: true });
-    });
+    this.setFieldMeta(name as never, { touched: true });
+    void this.validate(name as never, { type: 'focus' });
   };
 
   public blur = <Name extends Field>(name: Name) => {
@@ -244,10 +204,8 @@ export class FormApi<
 
     if (ref) ref.blur();
 
-    batch(async () => {
-      await this.validate(name as never, { type: 'blur' });
-      this.updateFieldMeta(name as never, { blurred: true });
-    });
+    this.setFieldMeta(name as never, { blurred: true });
+    void this.validate(name as never, { type: 'blur' });
   };
 
   public get = <Name extends Field>(name: Name) => {
@@ -262,7 +220,7 @@ export class FormApi<
     return (element: HTMLElement | null) => {
       if (!element) return;
 
-      this.store.setState(current => {
+      this.persisted.setState(current => {
         return {
           ...current,
           refs: {
@@ -280,36 +238,14 @@ export class FormApi<
 
   public submit =
     (
-      onSuccess: (data: StandardSchemaV1.InferOutput<Schema>, form: typeof this) => void | Promise<void>,
-      onError?: (issues: StandardSchemaV1.Issue[], form: typeof this) => void | Promise<void>,
+      onSuccess: (data: StandardSchema.InferOutput<Schema>, form: typeof this) => void | Promise<void>,
+      onError?: (issues: FormIssue[], form: typeof this) => void | Promise<void>,
     ) =>
     async () => {
-      this.store.setState(current => {
-        return {
-          ...current,
-          status: {
-            ...current.status,
-            submitting: true,
-            validating: true,
-            dirty: true,
-          },
-        };
-      });
+      this.setStatus({ submitting: true, dirty: true });
 
       const issues = await this.validate(undefined, { type: 'submit' });
       const valid = issues.length === 0;
-
-      this.store.setState(current => {
-        return {
-          ...current,
-          status: {
-            ...current.status,
-            validating: false,
-            successful: valid,
-            valid,
-          },
-        };
-      });
 
       if (valid) {
         await onSuccess(this.store.state.values as never, this);
@@ -317,17 +253,10 @@ export class FormApi<
         await onError?.(issues, this);
       }
 
-      this.store.setState(current => {
-        return {
-          ...current,
-          status: {
-            ...current.status,
-            submitting: false,
-            successful: valid,
-            submitted: true,
-            submits: current.status.submits + 1,
-          },
-        };
+      this.setStatus({
+        submits: this.persisted.state.status.submits + 1,
+        submitting: false,
+        successful: valid,
       });
     };
 }

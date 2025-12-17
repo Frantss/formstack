@@ -1,6 +1,7 @@
-import type { FieldMeta, FormApi } from '#/core/form-api';
+import type { FieldMeta, FormIssue } from '#/core/field-api.types';
+import type { FormApi } from '#/core/form-api';
 import type { DeepKeys, DeepValue } from '#/core/more-types';
-import type { EventLike, SchemaLike } from '#/core/types';
+import type { EventLike, SchemaLike, StandardSchema } from '#/core/types';
 import { get } from '#/utils/get';
 import type { StandardSchemaV1 } from '@standard-schema/spec';
 import { Derived } from '@tanstack/store';
@@ -8,7 +9,7 @@ import { stringToPath } from 'remeda';
 
 export type FieldOptions<
   Schema extends SchemaLike,
-  Name extends DeepKeys<StandardSchemaV1.InferInput<Schema>> = DeepKeys<StandardSchemaV1.InferInput<Schema>>,
+  Name extends DeepKeys<StandardSchema.InferInput<Schema>> = DeepKeys<StandardSchema.InferInput<Schema>>,
 > = {
   form: FormApi<Schema>;
   name: Name;
@@ -18,7 +19,7 @@ export type FieldStore<Value> = {
   value: Value;
   defaultValue: Value;
   meta: FieldMeta;
-  errors: StandardSchemaV1.Issue[];
+  errors: FormIssue[];
 };
 
 export type FieldProps<Value> = {
@@ -92,7 +93,7 @@ export class FieldApi<
 
   public blur = () => this.form.blur(this.options.name);
 
-  public change = (value: Value) => this.form.set(this.options.name, value);
+  public change = (value: Value) => this.form.change(this.options.name, value);
 
   public register = () => this.form.register(this.options.name);
 }
