@@ -1,23 +1,23 @@
 {
   "name": "tsdown-starter",
-  "type": "module",
   "version": "0.0.0",
   "description": "A starter for creating a TypeScript package.",
-  "author": "Author Name <author.name@mail.com>",
-  "license": "MIT",
   "homepage": "https://github.com/author/library#readme",
+  "bugs": {
+    "url": "https://github.com/author/library/issues"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/author/library.git"
   },
-  "bugs": {
-    "url": "https://github.com/author/library/issues"
-  },
+  "author": "Author Name <author.name@mail.com>",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.mjs",
   "exports": {
     ".": "./dist/index.mjs",
     "./package.json": "./package.json"
   },
-  "main": "./dist/index.mjs",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.mts",
   "files": [
@@ -27,31 +27,35 @@
     "build": "tsdown",
     "dev": "tsdown --watch",
     "test": "vitest",
-    "typecheck": "tsc --noEmit",
-    "prepublishOnly": "pnpm run build"
-  },
-  "devDependencies": {
-    "@standard-schema/spec": "^1.0.0",
-    "@types/node": "^24.10.1",
-    "@types/react": "^19.2.7",
-    "@vitejs/plugin-react": "^5.1.2",
-    "@vitest/browser-playwright": "^4.0.15",
-    "bumpp": "^10.3.2",
-    "oxfmt": "^0.17.0",
-    "oxlint": "^1.32.0",
-    "playwright": "^1.57.0",
-    "tsdown": "^0.17.0",
-    "typescript": "^5.9.3",
-    "vite-tsconfig-paths": "^5.1.4",
-    "vitest": "^4.0.15",
-    "vitest-browser-react": "^2.0.2",
-    "zod": "^4.1.13"
+    "lint:types": "tsc --noEmit",
+    "lint:rules": "oxlint --type-aware",
+    "lint:format": "oxfmt --check",
+    "lint:fix": "oxlint --type-aware --fix --fix-suggestions --fix-dangerously && oxfmt"
   },
   "dependencies": {
     "@tanstack/react-store": "^0.8.0",
     "@tanstack/store": "^0.8.0",
-    "react": "^19.2.1",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
     "remeda": "^2.32.0",
     "type-fest": "^5.3.1"
+  },
+  "devDependencies": {
+    "@standard-schema/spec": "^1.1.0",
+    "@types/node": "^25.0.3",
+    "@types/react": "^19.2.7",
+    "@vitejs/plugin-react": "^5.1.2",
+    "@vitest/browser-playwright": "^4.0.16",
+    "bumpp": "^10.3.2",
+    "oxfmt": "^0.18.0",
+    "oxlint": "^1.33.0",
+    "oxlint-tsgolint": "^0.9.1",
+    "playwright": "^1.57.0",
+    "tsdown": "^0.18.1",
+    "typescript": "^5.9.3",
+    "vite-tsconfig-paths": "^6.0.3",
+    "vitest": "^4.0.16",
+    "vitest-browser-react": "^2.0.2",
+    "zod": "^4.2.1"
   }
 }

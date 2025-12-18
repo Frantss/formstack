@@ -13,6 +13,7 @@ export default defineConfig({
       headless: true,
       screenshotFailures: false,
       instances: [{ browser: 'chromium' }],
+      viewport: { width: 1280, height: 720 },
     },
     globals: false,
     coverage: {

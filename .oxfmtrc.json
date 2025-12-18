@@ -4,6 +4,5 @@
   "singleQuote": true,
   "jsxSingleQuote": true,
   "printWidth": 120,
-  "objectWrap": "preserve",
-  "ignorePatterns": ["apps/web/src/routeTree.gen.ts"]
+  "objectWrap": "preserve"
 }
