@@ -23,7 +23,7 @@ const defaultValues = {
 const setup = () => {
   const form = new FormApi({
     schema,
-    defaultValues,
+    defaultValues
   });
   form['~mount']();
 

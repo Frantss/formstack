@@ -1,4 +1,5 @@
 import type { FieldChangeOptions } from '#/core/form-api.types';
+import type { FormContextApi } from '#/core/form-context-api';
 import type { FormFieldApi } from '#/core/form-field-api';
 import type { DeepKeysOfType, DeepValue, UnwrapOneLevelOfArray } from '#/core/more-types';
 import type { StandardSchema } from '#/core/types';
@@ -11,9 +12,11 @@ export class FormArrayFieldApi<
     any[] | null | undefined
   >,
 > {
+  private context: FormContextApi<Schema>;
   private field: FormFieldApi<Schema>;
 
-  constructor(field: FormFieldApi<Schema>) {
+  constructor({ field, context }: { field: FormFieldApi<Schema>; context: FormContextApi<Schema> }) {
+    this.context = context;
     this.field = field;
   }
 
@@ -53,6 +56,7 @@ export class FormArrayFieldApi<
 
     const updated = [...array.slice(0, index), value, ...array.slice(index)];
 
-    return this.field.change(name, updated as never, options);
+    this.field.change(name, updated as never, options);
+    this.context.recomputeFieldMeta(name);
   };
 }

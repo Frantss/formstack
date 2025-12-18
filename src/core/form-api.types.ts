@@ -1,4 +1,5 @@
 import type { FormApi } from '#/core/form-api';
+import type { DeepKeys } from '#/core/more-types';
 import type { PartialDeep, Simplify, StandardSchema } from '#/core/types';
 
 export type PersistedFormStatus = {
@@ -70,6 +71,7 @@ export type FormOptions<Schema extends StandardSchema> = {
     blur?: FormValidator<Schema>;
     focus?: FormValidator<Schema>;
   };
+  related?: Record<DeepKeys<StandardSchema.InferInput<Schema>>, DeepKeys<StandardSchema.InferInput<Schema>>[]>;
 };
 
 export type FormIssue = StandardSchema.Issue;

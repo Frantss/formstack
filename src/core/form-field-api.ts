@@ -4,6 +4,7 @@ import type { FormContextApi } from '#/core/form-context-api';
 import type { DeepKeys, DeepValue } from '#/core/more-types';
 import type { StandardSchema } from '#/core/types';
 import { get } from '#/utils/get';
+import { update, type Updater } from '#/utils/update';
 import { batch } from '@tanstack/store';
 import { setPath, stringToPath } from 'remeda';
 
@@ -20,18 +21,24 @@ export class FormFieldApi<
    * @param value - The new value to set for the field
    * @param options - Optional configuration for controlling validation, dirty state, and touched state
    */
-  public change = <Name extends Field>(name: Name, value: DeepValue<Values, Name>, options?: FieldChangeOptions) => {
-    const values = setPath(
-      this.context.store.state.values as never,
-      stringToPath(name) as never,
-      value as never,
-    ) as Values;
-
+  public change = <Name extends Field>(
+    name: Name,
+    updater: Updater<DeepValue<Values, Name>>,
+    options?: FieldChangeOptions,
+  ) => {
     const shouldDirty = options?.should?.dirty !== false;
     const shouldTouch = options?.should?.touch !== false;
     const shouldValidate = options?.should?.validate !== false;
 
     this.context.persisted.setState(current => {
+      const value = get(current.values as never, stringToPath(name)) as DeepValue<Values, Name>;
+
+      const values = setPath(
+        current.values as never,
+        stringToPath(name) as never,
+        update(updater, value) as never,
+      ) as Values;
+
       return {
         ...current,
         values,
@@ -69,16 +76,20 @@ export class FormFieldApi<
   };
 
   public meta = <Name extends Field>(name: Name) => {
-    const fieldMeta = this.context.store.state.fields[name];
+    const meta = this.context.store.state.fields[name];
 
-    if (fieldMeta) return fieldMeta;
+    if (meta) return meta;
 
-    return this.context.computeFieldMeta(
+    const updated = this.context.buildFieldMeta(
       name,
       undefined,
       this.context.store.state.values as Values,
       this.context.store.state.errors,
     );
+
+    this.context.setFieldMeta(name, updated);
+
+    return updated;
   };
 
   public register = <Name extends Field>(name: Name) => {

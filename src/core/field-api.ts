@@ -10,6 +10,7 @@ import type {
 import type { DeepKeys, DeepValue } from '#/core/more-types';
 import type { EventLike, StandardSchema } from '#/core/types';
 import { get } from '#/utils/get';
+import type { Updater } from '#/utils/update';
 import { Derived } from '@tanstack/store';
 import { stringToPath } from 'remeda';
 
@@ -104,8 +105,8 @@ export class FieldApi<
    * @param value - The new value to set for the field
    * @param options - Optional configuration for controlling validation, dirty state, and touched state
    */
-  public change = (value: Value, options?: FieldChangeOptions) => {
-    return this.form.field.change(this.options.name, value, options);
+  public change = (value: Updater<Value>, options?: FieldChangeOptions) => {
+    return this.form.field.change(this.options.name, value as never, options);
   };
 
   public register = () => this.form.field.register(this.options.name);

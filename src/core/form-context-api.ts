@@ -26,9 +26,10 @@ export class FormContextApi<
   public store!: Derived<FormStore<Schema>>;
 
   constructor(options: FormOptions<Schema>) {
-    this.options = options;
     const values = mergeDeep(options.defaultValues as never, options.values ?? {}) as Values;
-
+    
+    this.options = options;
+    
     this.persisted = new Store<FormBaseStore<Schema>>({
       values,
       fields: {},
@@ -46,7 +47,7 @@ export class FormContextApi<
         const dirty = Object.values(persisted.fields).some(meta => meta.dirty);
         const fields = Object.fromEntries(
           Object.entries(persisted.fields).map(([key, meta]) => {
-            return [key, this.computeFieldMeta(key, meta, persisted.values as Values, persisted.errors)];
+            return [key, this.buildFieldMeta(key, meta, persisted.values as Values, persisted.errors)];
           }),
         );
 
@@ -84,7 +85,7 @@ export class FormContextApi<
     };
   }
 
-  public computeFieldMeta = (
+  public buildFieldMeta = (
     fieldName: string,
     persistedMeta: PersistedFieldMeta | undefined,
     values: Values,
@@ -120,6 +121,31 @@ export class FormContextApi<
     });
   };
 
+  public recomputeFieldMeta = (name: string) => {
+    this.persisted.setState(current => {
+      const related: string[] = (this.options.related?.[name as never]) ?? [];
+      const all = Object.keys(current.fields);
+      const affected = all.filter(key => key.startsWith(name) || related.includes(key));
+      const updated = affected.reduce(
+        (acc, key) => {
+          return {
+            ...acc,
+            [key]: this.buildFieldMeta(key, current.fields[key], current.values as Values, current.errors),
+          };
+        },
+        {} as Record<string, FieldMeta>,
+      );
+
+      return {
+        ...current,
+        fields: {
+          ...current.fields,
+          ...updated,
+        },
+      };
+    });
+  };
+
   public setStatus = (status: Partial<PersistedFormStatus>) => {
     this.persisted.setState(current => {
       return {
@@ -141,10 +167,11 @@ export class FormContextApi<
 
     const { issues: allIssues } = await validate(validator, this.store.state.values);
     const fields = field ? (Array.isArray(field) ? field : [field]) : undefined;
+    const related: string[] = fields?.flatMap(field => this.options.related?.[field as never] ?? []) ?? [];
 
     const issues = (allIssues ?? []).filter(issue => {
       const path = issue.path?.join('.') ?? 'root';
-      return !fields || fields.includes(path as never);
+      return !fields || fields.includes(path as never) || related.includes(path as never);
     });
 
     const errors = issues.reduce((acc, issue) => {
@@ -158,7 +185,7 @@ export class FormContextApi<
     this.persisted.setState(current => {
       const existing = { ...current.errors };
 
-      for (const key of fields ?? []) {
+      for (const key of [...(fields ?? []), ...related]) {
         delete existing[key];
       }
 

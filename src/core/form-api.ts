@@ -18,7 +18,7 @@ export class FormApi<Schema extends StandardSchema> {
   constructor(options: FormOptions<Schema>) {
     this.context = new FormContextApi(options);
     this.field = new FormFieldApi(this.context);
-    this.array = new FormArrayFieldApi(this.field);
+    this.array = new FormArrayFieldApi({ field: this.field, context: this.context });
   }
 
   public '~mount' = () => {
