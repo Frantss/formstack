@@ -101,7 +101,7 @@ describe('on change', async () => {
       },
     });
 
-    form.change('name', 2 as any);
+    form.field.change('name', 2 as any);
 
     expect(spy).toHaveBeenCalledWith({ ...values, name: 2 });
     await expect.poll(() => form.store.state.status.valid).toBe(false);
@@ -119,7 +119,7 @@ describe('on blur', async () => {
       },
     });
 
-    form.blur('name');
+    form.field.blur('name');
 
     expect(spy).toHaveBeenCalledWith({ ...values, name: 2 });
     await expect.poll(() => form.store.state.status.valid).toBe(false);
@@ -137,7 +137,7 @@ describe('on touch', async () => {
       },
     });
 
-    form.focus('name');
+    form.field.focus('name');
 
     expect(spy).toHaveBeenCalledWith({ ...values, name: 2 });
     await expect.poll(() => form.store.state.status.valid).toBe(false);

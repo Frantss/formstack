@@ -1,329 +1,83 @@
-import { defaultMeta, defaultStatus } from '#/core/field-api.constants';
+import { defaultStatus } from '#/core/field-api.constants';
 import type {
-  FieldChangeOptions,
-  FieldMeta,
-  FormBaseStore,
-  FormIssue,
   FormOptions,
-  FormResetFieldOptions,
   FormResetOptions,
-  FormSetErrorsOptions,
-  FormStore,
   FormSubmitErrorHandler,
   FormSubmitSuccessHandler,
-  PersistedFieldMeta,
-  PersistedFormStatus,
-  ValidateOptions,
 } from '#/core/form-api.types';
-import type { DeepKeys, DeepValue } from '#/core/more-types';
+import { FormContextApi } from '#/core/form-context-api';
+import { FormFieldApi } from '#/core/form-field-api';
+import type { DeepKeys } from '#/core/more-types';
 import type { SchemaLike } from '#/core/types';
-import { get } from '#/utils/get';
-import { validate } from '#/utils/validate';
 import type { StandardSchemaV1 } from '@standard-schema/spec';
-import { batch, Derived, Store } from '@tanstack/store';
-import { isDeepEqual, isFunction, mergeDeep, setPath, stringToPath } from 'remeda';
 
 export class FormApi<
   Schema extends SchemaLike,
   Values extends StandardSchemaV1.InferInput<Schema> = StandardSchemaV1.InferInput<Schema>,
   Field extends DeepKeys<Values> = DeepKeys<Values>,
 > {
-  public options!: FormOptions<Schema>;
-  private persisted: Store<FormBaseStore<Schema>>;
-  public store!: Derived<FormStore<Schema>>;
-  private initialValues: Values;
+  private context: FormContextApi<Schema, Values, Field>;
+  public field: FormFieldApi<Schema, Values, Field>;
 
   constructor(options: FormOptions<Schema>) {
-    this.options = options;
-    this.initialValues = mergeDeep(options.defaultValues as never, options.values ?? {}) as Values;
-
-    this.persisted = new Store<FormBaseStore<Schema>>({
-      values: this.initialValues,
-      fields: {},
-      refs: {},
-      status: defaultStatus,
-      errors: {},
-    });
-
-    this.store = new Derived<FormStore<Schema>>({
-      deps: [this.persisted],
-      fn: ({ currDepVals }) => {
-        const persisted = currDepVals[0] as FormBaseStore<Schema>;
-
-        const invalid = Object.values(persisted.errors).some(issues => issues.length > 0);
-        const dirty = Object.values(persisted.fields).some(meta => meta.dirty);
-        const fields = Object.fromEntries(
-          Object.entries(persisted.fields).map(([key, meta]) => {
-            return [key, this.computeFieldMeta(key, meta, persisted.values as Values, persisted.errors)];
-          }),
-        );
-
-        return {
-          ...persisted,
-          fields,
-          status: {
-            ...persisted.status,
-            submitted: persisted.status.submits > 0,
-            valid: !invalid,
-            dirty: persisted.status.dirty || dirty,
-          },
-        };
-      },
-    });
+    this.context = new FormContextApi(options);
+    this.field = new FormFieldApi<Schema, Values, Field>(this.context as never);
   }
 
   public '~mount' = () => {
-    const unsubscribe = this.store.mount();
+    const unsubscribe = this.context.store.mount();
 
     return unsubscribe;
   };
 
   public '~update' = (options: FormOptions<Schema>) => {
-    this.options = options;
+    this.context.options = options;
   };
 
+  public get store() {
+    return this.context.store;
+  }
+
   public get status() {
-    return this.store.state.status;
+    return this.context.store.state.status;
   }
 
   public get values() {
-    return this.store.state.values;
+    return this.context.store.state.values;
   }
 
-  private get validator() {
-    const store = this.store.state;
-    const validate = this.options.validate;
-
-    return {
-      change: isFunction(validate?.change) ? validate.change(store) : validate?.change,
-      submit: isFunction(validate?.submit) ? validate.submit(store) : (validate?.submit ?? this.options.schema),
-      blur: isFunction(validate?.blur) ? validate.blur(store) : validate?.blur,
-      focus: isFunction(validate?.focus) ? validate.focus(store) : validate?.focus,
-    };
+  public get options() {
+    return this.context.options;
   }
 
-  private computeFieldMeta = (
-    fieldName: string,
-    persistedMeta: PersistedFieldMeta | undefined,
-    values: Values,
-    errors: Record<string, FormIssue[]>,
-  ): FieldMeta => {
-    const path = stringToPath(fieldName);
-    const value = get(values as never, path);
-    const defaultValue = get(this.options.defaultValues, path);
-    const invalid = errors[fieldName]?.length > 0;
-    const baseMeta = persistedMeta ?? defaultMeta;
-
-    return {
-      ...baseMeta,
-      default: isDeepEqual(value, defaultValue),
-      pristine: !baseMeta.dirty,
-      valid: !invalid,
-    } satisfies FieldMeta;
-  };
-
-  private setFieldMeta = (name: string, meta: Partial<PersistedFieldMeta>) => {
-    this.persisted.setState(current => {
-      return {
-        ...current,
-        fields: {
-          ...current.fields,
-          [name]: {
-            ...defaultMeta,
-            ...this.persisted.state.fields[name],
-            ...meta,
-          },
-        },
-      };
-    });
-  };
-
-  private setStatus = (status: Partial<PersistedFormStatus>) => {
-    this.persisted.setState(current => {
-      return {
-        ...current,
-        status: {
-          ...current.status,
-          ...status,
-        },
-      };
-    });
-  };
-
-  public validate = async (field?: Field | Field[], options?: ValidateOptions) => {
-    const validator = options?.type ? this.validator[options.type] : this.options.schema;
-
-    if (!validator) return [];
-
-    this.setStatus({ validating: true });
-
-    const { issues: allIssues } = await validate(validator, this.store.state.values);
-    const fields = field ? (Array.isArray(field) ? field : [field]) : undefined;
-
-    const issues = (allIssues ?? []).filter(issue => {
-      const path = issue.path?.join('.') ?? 'root';
-      return !fields || fields.includes(path as never);
-    });
-
-    const errors = issues.reduce((acc, issue) => {
-      const path = issue.path?.join('.') ?? 'root';
-      return {
-        ...acc,
-        [path]: [...(acc[path] ?? []), issue],
-      };
-    }, {} as any);
-
-    this.persisted.setState(current => {
-      const existing = { ...current.errors };
-
-      for (const key of fields ?? []) {
-        delete existing[key];
-      }
-
-      return {
-        ...current,
-        errors: {
-          ...(fields ? existing : {}), // when validating a specific set of fields, keep the existing errors
-          ...errors,
-        },
-      };
-    });
-
-    this.setStatus({ validating: false });
-
-    return issues;
-  };
-
-  /**
-   * Changes the value of a specific field with optional control over side effects.
-   * @param name - The name of the field to change
-   * @param value - The new value to set for the field
-   * @param options - Optional configuration for controlling validation, dirty state, and touched state
-   */
-  public change = <Name extends Field>(name: Name, value: DeepValue<Values, Name>, options?: FieldChangeOptions) => {
-    const values = setPath(this.store.state.values as never, stringToPath(name) as never, value as never) as Values;
-
-    const shouldDirty = options?.should?.dirty !== false;
-    const shouldTouch = options?.should?.touch !== false;
-    const shouldValidate = options?.should?.validate !== false;
-
-    this.persisted.setState(current => {
-      return {
-        ...current,
-        values,
-      };
-    });
-
-    if (shouldValidate) void this.validate(name, { type: 'change' });
-
-    batch(() => {
-      if (shouldDirty) this.setFieldMeta(name, { dirty: true });
-      if (shouldTouch) this.setFieldMeta(name, { touched: true });
-    });
-  };
-
-  public focus = <Name extends Field>(name: Name) => {
-    const ref = this.store.state.refs[name as never];
-
-    if (ref) ref.focus();
-
-    this.setFieldMeta(name as never, { touched: true });
-    void this.validate(name as never, { type: 'focus' });
-  };
-
-  public blur = <Name extends Field>(name: Name) => {
-    const ref = this.store.state.refs[name as never];
-
-    if (ref) ref.blur();
-
-    this.setFieldMeta(name as never, { blurred: true });
-    void this.validate(name as never, { type: 'blur' });
-  };
-
-  public get = <Name extends Field>(name: Name) => {
-    return get(this.store.state.values as never, stringToPath(name)) as DeepValue<Values, Name>;
-  };
-
-  public meta = <Name extends Field>(name: Name) => {
-    const fieldMeta = this.store.state.fields[name];
-
-    if (fieldMeta) return fieldMeta;
-
-    return this.computeFieldMeta(name, undefined, this.store.state.values as Values, this.store.state.errors);
-  };
-
-  public register = <Name extends Field>(name: Name) => {
-    return (element: HTMLElement | null) => {
-      if (!element) return;
-
-      this.persisted.setState(current => {
-        return {
-          ...current,
-          refs: {
-            ...current.refs,
-            [name]: element,
-          },
-        };
-      });
-    };
-  };
-
-  public errors = <Name extends Field>(name: Name) => {
-    return this.store.state.errors[name] ?? [];
-  };
-
-  public setErrors = <Name extends Field>(name: Name, errors: FormIssue[], options?: FormSetErrorsOptions) => {
-    this.persisted.setState(current => {
-      const existing = current.errors[name] ?? [];
-      let updated: FormIssue[];
-
-      switch (options?.mode) {
-        case 'append':
-          updated = [...existing, ...errors];
-          break;
-        case 'keep':
-          updated = existing.length > 0 ? existing : errors;
-          break;
-        case 'replace':
-        default:
-          updated = errors;
-          break;
-      }
-
-      return {
-        ...current,
-        errors: {
-          ...current.errors,
-          [name]: updated,
-        },
-      };
-    });
-  };
+  public get validate() {
+    return this.context.validate;
+  }
 
   public submit =
     (onSuccess: FormSubmitSuccessHandler<Schema>, onError?: FormSubmitErrorHandler<Schema>) => async () => {
-      this.setStatus({ submitting: true, dirty: true });
+      this.context.setStatus({ submitting: true, dirty: true });
 
-      const issues = await this.validate(undefined, { type: 'submit' });
+      const issues = await this.context.validate(undefined, { type: 'submit' });
       const valid = issues.length === 0;
 
       if (valid) {
-        await onSuccess(this.store.state.values as never, this as never);
+        await onSuccess(this.context.store.state.values as never, this as never);
       } else {
         await onError?.(issues, this as never);
       }
 
-      this.setStatus({
-        submits: this.persisted.state.status.submits + 1,
+      this.context.setStatus({
+        submits: this.context.persisted.state.status.submits + 1,
         submitting: false,
         successful: valid,
       });
     };
 
   public reset = (options?: FormResetOptions<Values>) => {
-    this.persisted.setState(current => {
+    this.context.persisted.setState(current => {
       return {
-        values: options?.values ?? this.options.defaultValues,
+        values: options?.values ?? this.context.options.defaultValues,
         fields: options?.keep?.fields ? current.fields : {},
         refs: options?.keep?.refs ? current.refs : {},
         errors: options?.keep?.errors ? current.errors : {},
@@ -331,38 +85,6 @@ export class FormApi<
           ...defaultStatus,
           ...options?.status,
         },
-      };
-    });
-  };
-
-  public resetField = <Name extends Field>(name: Name, options?: FormResetFieldOptions<DeepValue<Values, Name>>) => {
-    const path = stringToPath(name as never);
-    const defaultValue = get(this.options.defaultValues, path) as DeepValue<Values, Name>;
-    const value = options?.value ?? defaultValue;
-
-    this.persisted.setState(current => {
-      const values = setPath(current.values as never, path as any, value as never);
-      const fields = { ...current.fields };
-      const refs = { ...current.refs };
-      const errors = { ...current.errors };
-
-      if (options?.meta) {
-        const currentMeta = options?.keep?.meta ? (fields[name as string] ?? defaultMeta) : defaultMeta;
-        fields[name as string] = {
-          ...currentMeta,
-          ...options.meta,
-        };
-      } else if (!options?.keep?.meta) delete fields[name as string];
-
-      if (!options?.keep?.refs) delete refs[name as string];
-      if (!options?.keep?.errors) delete errors[name as string];
-
-      return {
-        ...current,
-        values,
-        fields,
-        refs,
-        errors,
       };
     });
   };

@@ -54,10 +54,10 @@ export class FieldApi<
     this.store = new Derived<FieldStore<Value>>({
       deps: [this.form.store],
       fn: () => {
-        const value = this.form.get(this.options.name as never) as Value;
+        const value = this.form.field.get(this.options.name as never) as Value;
         const defaultValue = get(this.form.options.defaultValues as never, stringToPath(this.options.name)) as Value;
-        const meta = this.form.meta(this.options.name as never);
-        const errors = this.form.errors(this.options.name as never);
+        const meta = this.form.field.meta(this.options.name as never);
+        const errors = this.form.field.errors(this.options.name as never);
 
         return {
           value,
@@ -96,9 +96,9 @@ export class FieldApi<
     return this.store.state.errors;
   }
 
-  public focus = () => this.form.focus(this.options.name);
+  public focus = () => this.form.field.focus(this.options.name);
 
-  public blur = () => this.form.blur(this.options.name);
+  public blur = () => this.form.field.blur(this.options.name);
 
   /**
    * Changes the value of this field with optional control over side effects.
@@ -106,10 +106,10 @@ export class FieldApi<
    * @param options - Optional configuration for controlling validation, dirty state, and touched state
    */
   public change = (value: Value, options?: FieldChangeOptions) => {
-    return this.form.change(this.options.name, value, options);
+    return this.form.field.change(this.options.name, value, options);
   };
 
-  public register = () => this.form.register(this.options.name);
+  public register = () => this.form.field.register(this.options.name);
 
   /**
    * Validates this specific field using the specified validation type.
@@ -125,7 +125,7 @@ export class FieldApi<
    * @param options - Reset options for controlling what gets reset and what gets kept
    */
   public reset = (options?: FormResetFieldOptions<Value>) => {
-    return this.form.resetField(this.options.name, options);
+    return this.form.field.reset(this.options.name, options);
   };
 
   /**
@@ -134,6 +134,6 @@ export class FieldApi<
    * @param mode - How to handle existing errors: 'replace' (default), 'append', or 'keep'
    */
   public setErrors = (errors: FormIssue[], options?: FormSetErrorsOptions) => {
-    return this.form.setErrors(this.options.name, errors, options);
+    return this.form.field.setErrors(this.options.name, errors, options);
   };
 }

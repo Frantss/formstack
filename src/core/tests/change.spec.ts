@@ -45,27 +45,27 @@ describe('basic value updates', () => {
   it('should update string field value', () => {
     const { form } = setup();
 
-    form.change('name', 'Jane');
+    form.field.change('name', 'Jane');
 
-    expect(form.get('name')).toBe('Jane');
+    expect(form.field.get('name')).toBe('Jane');
     expect(form.store.state.values.name).toBe('Jane');
   });
 
   it('should update number field value', () => {
     const { form } = setup();
 
-    form.change('age', 30);
+    form.field.change('age', 30);
 
-    expect(form.get('age')).toBe(30);
+    expect(form.field.get('age')).toBe(30);
     expect(form.store.state.values.age).toBe(30);
   });
 
   it('should update boolean field value', () => {
     const { form } = setup();
 
-    form.change('active', false);
+    form.field.change('active', false);
 
-    expect(form.get('active')).toBe(false);
+    expect(form.field.get('active')).toBe(false);
     expect(form.store.state.values.active).toBe(false);
   });
 
@@ -73,9 +73,9 @@ describe('basic value updates', () => {
     const { form } = setup();
 
     const newItems = ['new1', 'new2', 'new3'];
-    form.change('items', newItems);
+    form.field.change('items', newItems);
 
-    expect(form.get('items')).toEqual(newItems);
+    expect(form.field.get('items')).toEqual(newItems);
     expect(form.store.state.values.items).toEqual(newItems);
   });
 
@@ -88,9 +88,9 @@ describe('basic value updates', () => {
         prop: 'new-deep-value',
       },
     };
-    form.change('nested', newNested);
+    form.field.change('nested', newNested);
 
-    expect(form.get('nested')).toEqual(newNested);
+    expect(form.field.get('nested')).toEqual(newNested);
     expect(form.store.state.values.nested).toEqual(newNested);
   });
 });
@@ -99,30 +99,30 @@ describe('nested field updates', () => {
   it('should update nested field value', () => {
     const { form } = setup();
 
-    form.change('nested.value', 'updated');
+    form.field.change('nested.value', 'updated');
 
-    expect(form.get('nested.value')).toBe('updated');
+    expect(form.field.get('nested.value')).toBe('updated');
     expect(form.store.state.values.nested.value).toBe('updated');
     // Should preserve other nested properties
-    expect(form.get('nested.deep.prop')).toBe('deep-value');
+    expect(form.field.get('nested.deep.prop')).toBe('deep-value');
   });
 
   it('should update deeply nested field value', () => {
     const { form } = setup();
 
-    form.change('nested.deep.prop', 'updated-deep');
+    form.field.change('nested.deep.prop', 'updated-deep');
 
-    expect(form.get('nested.deep.prop')).toBe('updated-deep');
+    expect(form.field.get('nested.deep.prop')).toBe('updated-deep');
     expect(form.store.state.values.nested.deep.prop).toBe('updated-deep');
     // Should preserve other nested properties
-    expect(form.get('nested.value')).toBe('test');
+    expect(form.field.get('nested.value')).toBe('test');
   });
 
   it('should update array item by index', () => {
     const { form } = setup();
 
     // Use the proper array index notation
-    form.change('items[1]' as any, 'updated-item2');
+    form.field.change('items[1]' as any, 'updated-item2');
 
     expect(form.store.state.values.items[1]).toBe('updated-item2');
     expect(form.store.state.values.items[0]).toBe('item1'); // Other items preserved
@@ -138,11 +138,11 @@ describe('nested field updates', () => {
       },
     };
 
-    form.change('nested', newNestedValue);
+    form.field.change('nested', newNestedValue);
 
-    expect(form.get('nested')).toEqual(newNestedValue);
-    expect(form.get('nested.value')).toBe('updated-nested-value');
-    expect(form.get('nested.deep.prop')).toBe('updated-deep-prop');
+    expect(form.field.get('nested')).toEqual(newNestedValue);
+    expect(form.field.get('nested.value')).toBe('updated-nested-value');
+    expect(form.field.get('nested.deep.prop')).toBe('updated-deep-prop');
   });
 });
 
@@ -150,60 +150,60 @@ describe('field metadata changes', () => {
   it('should mark field as dirty by default', () => {
     const { form } = setup();
 
-    expect(form.meta('name').dirty).toBe(false);
+    expect(form.field.meta('name').dirty).toBe(false);
 
-    form.change('name', 'Jane');
+    form.field.change('name', 'Jane');
 
-    expect(form.meta('name').dirty).toBe(true);
+    expect(form.field.meta('name').dirty).toBe(true);
     expect(form.store.state.status.dirty).toBe(true);
   });
 
   it('should mark field as touched by default', () => {
     const { form } = setup();
 
-    expect(form.meta('name').touched).toBe(false);
+    expect(form.field.meta('name').touched).toBe(false);
 
-    form.change('name', 'Jane');
+    form.field.change('name', 'Jane');
 
-    expect(form.meta('name').touched).toBe(true);
+    expect(form.field.meta('name').touched).toBe(true);
   });
 
   it('should not mark field as dirty when options.should.dirty is false', () => {
     const { form } = setup();
 
-    form.change('name', 'Jane', { should: { dirty: false } });
+    form.field.change('name', 'Jane', { should: { dirty: false } });
 
-    expect(form.meta('name').dirty).toBe(false);
+    expect(form.field.meta('name').dirty).toBe(false);
     expect(form.store.state.status.dirty).toBe(false);
   });
 
   it('should not mark field as touched when options.should.touch is false', () => {
     const { form } = setup();
 
-    form.change('name', 'Jane', { should: { touch: false } });
+    form.field.change('name', 'Jane', { should: { touch: false } });
 
-    expect(form.meta('name').touched).toBe(false);
+    expect(form.field.meta('name').touched).toBe(false);
   });
 
   it('should support partial options', () => {
     const { form } = setup();
 
     // Only disable dirty, keep touch and validate
-    form.change('name', 'Jane', { should: { dirty: false } });
+    form.field.change('name', 'Jane', { should: { dirty: false } });
 
-    expect(form.meta('name').dirty).toBe(false);
-    expect(form.meta('name').touched).toBe(true);
+    expect(form.field.meta('name').dirty).toBe(false);
+    expect(form.field.meta('name').touched).toBe(true);
   });
 
   it('should work with nested fields metadata', () => {
     const { form } = setup();
 
-    expect(form.meta('nested.value').dirty).toBe(false);
+    expect(form.field.meta('nested.value').dirty).toBe(false);
 
-    form.change('nested.value', 'updated');
+    form.field.change('nested.value', 'updated');
 
-    expect(form.meta('nested.value').dirty).toBe(true);
-    expect(form.meta('nested.value').touched).toBe(true);
+    expect(form.field.meta('nested.value').dirty).toBe(true);
+    expect(form.field.meta('nested.value').touched).toBe(true);
   });
 });
 
@@ -215,11 +215,11 @@ describe('validation behavior', () => {
       },
     });
 
-    form.change('name', ''); // Invalid value - should fail min(1) requirement
+    form.field.change('name', ''); // Invalid value - should fail min(1) requirement
 
     // Wait for validation to complete
-    await expect.poll(() => form.errors('name').length).toBe(1);
-    expect(form.errors('name')[0].message).toBe('Name is required');
+    await expect.poll(() => form.field.errors('name').length).toBe(1);
+    expect(form.field.errors('name')[0].message).toBe('Name is required');
   });
 
   it('should not validate when options.should.validate is false', async () => {
@@ -229,12 +229,12 @@ describe('validation behavior', () => {
       },
     });
 
-    form.change('name', '', { should: { validate: false } });
+    form.field.change('name', '', { should: { validate: false } });
 
     // Wait a bit to ensure validation would have run if enabled
     await new Promise(resolve => setTimeout(resolve, 10));
 
-    expect(form.errors('name')).toHaveLength(0);
+    expect(form.field.errors('name')).toHaveLength(0);
   });
 
   it('should use change validation type when validator is provided', async () => {
@@ -244,10 +244,10 @@ describe('validation behavior', () => {
       },
     });
 
-    form.change('name', '');
+    form.field.change('name', '');
 
     // Wait for validation to complete
-    await expect.poll(() => form.errors('name').length).toBe(1);
+    await expect.poll(() => form.field.errors('name').length).toBe(1);
   });
 
   it('should validate with custom change validator', async () => {
@@ -271,11 +271,11 @@ describe('validation behavior', () => {
       },
     });
 
-    form.change('name', 'forbidden');
+    form.field.change('name', 'forbidden');
 
     // Wait for validation
-    await expect.poll(() => form.errors('name').length).toBe(1);
-    expect(form.errors('name')[0].message).toBe('Forbidden name');
+    await expect.poll(() => form.field.errors('name').length).toBe(1);
+    expect(form.field.errors('name')[0].message).toBe('Forbidden name');
   });
 
   it('should clear errors when value becomes valid', async () => {
@@ -286,12 +286,12 @@ describe('validation behavior', () => {
     });
 
     // Make field invalid
-    form.change('name', '');
-    await expect.poll(() => form.errors('name').length).toBe(1);
+    form.field.change('name', '');
+    await expect.poll(() => form.field.errors('name').length).toBe(1);
 
     // Make field valid
-    form.change('name', 'Valid Name');
-    await expect.poll(() => form.errors('name').length).toBe(0);
+    form.field.change('name', 'Valid Name');
+    await expect.poll(() => form.field.errors('name').length).toBe(0);
   });
 
   it('should validate nested fields with change validator', async () => {
@@ -301,11 +301,11 @@ describe('validation behavior', () => {
       },
     });
 
-    form.change('nested.value', '');
+    form.field.change('nested.value', '');
 
     // Wait for validation
-    await expect.poll(() => form.errors('nested.value').length).toBe(1);
-    expect(form.errors('nested.value')[0].message).toBe('Value is required');
+    await expect.poll(() => form.field.errors('nested.value').length).toBe(1);
+    expect(form.field.errors('nested.value')[0].message).toBe('Value is required');
   });
 });
 
@@ -313,50 +313,50 @@ describe('edge cases and error handling', () => {
   it('should handle undefined values', () => {
     const { form } = setup();
 
-    form.change('name', undefined as any);
+    form.field.change('name', undefined as any);
 
-    expect(form.get('name')).toBe(undefined);
+    expect(form.field.get('name')).toBe(undefined);
   });
 
   it('should handle null values', () => {
     const { form } = setup();
 
-    form.change('name', null as any);
+    form.field.change('name', null as any);
 
-    expect(form.get('name')).toBe(null);
+    expect(form.field.get('name')).toBe(null);
   });
 
   it('should handle empty string values', () => {
     const { form } = setup();
 
-    form.change('name', '');
+    form.field.change('name', '');
 
-    expect(form.get('name')).toBe('');
+    expect(form.field.get('name')).toBe('');
   });
 
   it('should handle zero values', () => {
     const { form } = setup();
 
-    form.change('age', 0);
+    form.field.change('age', 0);
 
-    expect(form.get('age')).toBe(0);
+    expect(form.field.get('age')).toBe(0);
   });
 
   it('should handle false boolean values', () => {
     const { form } = setup();
 
-    form.change('active', false);
+    form.field.change('active', false);
 
-    expect(form.get('active')).toBe(false);
+    expect(form.field.get('active')).toBe(false);
   });
 
   it('should handle changing value to same value', () => {
     const { form } = setup();
 
-    form.change('name', 'John'); // Same as default value
+    form.field.change('name', 'John'); // Same as default value
 
-    expect(form.get('name')).toBe('John');
-    expect(form.meta('name').dirty).toBe(true); // Still marks as dirty
+    expect(form.field.get('name')).toBe('John');
+    expect(form.field.meta('name').dirty).toBe(true); // Still marks as dirty
   });
 
   it('should handle invalid field paths gracefully', () => {
@@ -369,7 +369,7 @@ describe('edge cases and error handling', () => {
 
     // This should not throw
     expect(() => {
-      (form as any).change('items[10]', 'new-item');
+      (form as any).field.change('items[10]', 'new-item');
     }).not.toThrow();
 
     // Array should be extended
@@ -381,10 +381,10 @@ describe('form state integration', () => {
   it('should update form.values correctly', () => {
     const { form } = setup();
 
-    form.change('name', 'Updated Name');
+    form.field.change('name', 'Updated Name');
 
     expect(form.store.state.values.name).toBe('Updated Name');
-    expect(form.get('name')).toBe('Updated Name');
+    expect(form.field.get('name')).toBe('Updated Name');
   });
 
   it('should update form dirty status when field becomes dirty', () => {
@@ -392,7 +392,7 @@ describe('form state integration', () => {
 
     expect(form.store.state.status.dirty).toBe(false);
 
-    form.change('name', 'Jane');
+    form.field.change('name', 'Jane');
 
     expect(form.store.state.status.dirty).toBe(true);
   });
@@ -401,30 +401,30 @@ describe('form state integration', () => {
     const { form } = setup();
 
     // Change via FormApi.change
-    form.change('name', 'Via FormAPI');
-    expect(form.get('name')).toBe('Via FormAPI');
+    form.field.change('name', 'Via FormAPI');
+    expect(form.field.get('name')).toBe('Via FormAPI');
 
     // Reset field
-    form.resetField('name');
-    expect(form.get('name')).toBe('John'); // Back to default
+    form.field.reset('name');
+    expect(form.field.get('name')).toBe('John'); // Back to default
 
     // Change again via FormApi.change
-    form.change('name', 'Via Change Again');
-    expect(form.get('name')).toBe('Via Change Again');
+    form.field.change('name', 'Via Change Again');
+    expect(form.field.get('name')).toBe('Via Change Again');
   });
 
   it('should work with form.reset()', () => {
     const { form } = setup();
 
-    form.change('name', 'Changed');
-    form.change('email', 'changed@email.com');
+    form.field.change('name', 'Changed');
+    form.field.change('email', 'changed@email.com');
 
     expect(form.store.state.status.dirty).toBe(true);
 
     form.reset();
 
-    expect(form.get('name')).toBe('John');
-    expect(form.get('email')).toBe('john@example.com');
+    expect(form.field.get('name')).toBe('John');
+    expect(form.field.get('email')).toBe('john@example.com');
     expect(form.store.state.status.dirty).toBe(false);
   });
 
@@ -434,8 +434,8 @@ describe('form state integration', () => {
     const { form } = setup();
 
     // Change some values
-    form.change('name', 'Submitted Name');
-    form.change('age', 30);
+    form.field.change('name', 'Submitted Name');
+    form.field.change('age', 30);
 
     const handleSubmit = (data: any) => {
       submittedData = data;
@@ -464,7 +464,7 @@ describe('options combinations', () => {
   it('should handle all options disabled', async () => {
     const { form } = setup();
 
-    form.change('name', 'New Value', {
+    form.field.change('name', 'New Value', {
       should: {
         validate: false,
         dirty: false,
@@ -472,13 +472,13 @@ describe('options combinations', () => {
       },
     });
 
-    expect(form.get('name')).toBe('New Value');
-    expect(form.meta('name').dirty).toBe(false);
-    expect(form.meta('name').touched).toBe(false);
+    expect(form.field.get('name')).toBe('New Value');
+    expect(form.field.meta('name').dirty).toBe(false);
+    expect(form.field.meta('name').touched).toBe(false);
 
     // Wait to ensure validation doesn't run
     await new Promise(resolve => setTimeout(resolve, 10));
-    expect(form.errors('name')).toHaveLength(0);
+    expect(form.field.errors('name')).toHaveLength(0);
   });
 
   it('should handle only validation enabled', async () => {
@@ -488,7 +488,7 @@ describe('options combinations', () => {
       },
     });
 
-    form.change('name', '', {
+    form.field.change('name', '', {
       should: {
         validate: true,
         dirty: false,
@@ -496,33 +496,33 @@ describe('options combinations', () => {
       },
     });
 
-    expect(form.meta('name').dirty).toBe(false);
-    expect(form.meta('name').touched).toBe(false);
+    expect(form.field.meta('name').dirty).toBe(false);
+    expect(form.field.meta('name').touched).toBe(false);
 
     // Wait for validation
-    await expect.poll(() => form.errors('name').length).toBe(1);
+    await expect.poll(() => form.field.errors('name').length).toBe(1);
   });
 
   it('should handle empty options object', () => {
     const { form } = setup();
 
-    form.change('name', 'With Empty Options', {});
+    form.field.change('name', 'With Empty Options', {});
 
     // Should use default behavior
-    expect(form.get('name')).toBe('With Empty Options');
-    expect(form.meta('name').dirty).toBe(true);
-    expect(form.meta('name').touched).toBe(true);
+    expect(form.field.get('name')).toBe('With Empty Options');
+    expect(form.field.meta('name').dirty).toBe(true);
+    expect(form.field.meta('name').touched).toBe(true);
   });
 
   it('should handle options with empty should object', () => {
     const { form } = setup();
 
-    form.change('name', 'With Empty Should', { should: {} });
+    form.field.change('name', 'With Empty Should', { should: {} });
 
     // Should use default behavior
-    expect(form.get('name')).toBe('With Empty Should');
-    expect(form.meta('name').dirty).toBe(true);
-    expect(form.meta('name').touched).toBe(true);
+    expect(form.field.get('name')).toBe('With Empty Should');
+    expect(form.field.meta('name').dirty).toBe(true);
+    expect(form.field.meta('name').touched).toBe(true);
   });
 });
 
@@ -532,25 +532,25 @@ describe('performance and batching', () => {
 
     // Make multiple rapid changes
     for (let i = 0; i < 10; i++) {
-      form.change('name', `Name ${i}`);
+      form.field.change('name', `Name ${i}`);
     }
 
-    expect(form.get('name')).toBe('Name 9');
-    expect(form.meta('name').dirty).toBe(true);
+    expect(form.field.get('name')).toBe('Name 9');
+    expect(form.field.meta('name').dirty).toBe(true);
   });
 
   it('should work with multiple field changes in sequence', () => {
     const { form } = setup();
 
-    form.change('name', 'New Name');
-    form.change('email', 'new@email.com');
-    form.change('age', 35);
-    form.change('nested.value', 'new nested value');
+    form.field.change('name', 'New Name');
+    form.field.change('email', 'new@email.com');
+    form.field.change('age', 35);
+    form.field.change('nested.value', 'new nested value');
 
-    expect(form.get('name')).toBe('New Name');
-    expect(form.get('email')).toBe('new@email.com');
-    expect(form.get('age')).toBe(35);
-    expect(form.get('nested.value')).toBe('new nested value');
+    expect(form.field.get('name')).toBe('New Name');
+    expect(form.field.get('email')).toBe('new@email.com');
+    expect(form.field.get('age')).toBe(35);
+    expect(form.field.get('nested.value')).toBe('new nested value');
 
     expect(form.store.state.status.dirty).toBe(true);
   });

@@ -41,51 +41,51 @@ describe('basic field reset', () => {
   it('should reset field value to default', async () => {
     const { form } = await setup();
 
-    form.change('name', 'Changed Name');
+    form.field.change('name', 'Changed Name');
 
-    expect(form.get('name')).toBe('Changed Name');
+    expect(form.field.get('name')).toBe('Changed Name');
 
-    form.resetField('name');
+    form.field.reset('name');
 
-    expect(form.get('name')).toBe('Default Name');
+    expect(form.field.get('name')).toBe('Default Name');
   });
 
   it('should reset nested field value to default', async () => {
     const { form } = await setup();
 
-    form.change('nested.deep.value', 'changed nested');
+    form.field.change('nested.deep.value', 'changed nested');
 
-    expect(form.get('nested.deep.value')).toBe('changed nested');
+    expect(form.field.get('nested.deep.value')).toBe('changed nested');
 
-    form.resetField('nested.deep.value');
+    form.field.reset('nested.deep.value');
 
-    expect(form.get('nested.deep.value')).toBe('default value');
+    expect(form.field.get('nested.deep.value')).toBe('default value');
   });
 
   it('should reset array field value to default', async () => {
     const { form } = await setup();
 
-    form.change('nested.deep.array', ['changed1', 'changed2', 'changed3']);
+    form.field.change('nested.deep.array', ['changed1', 'changed2', 'changed3']);
 
-    expect(form.get('nested.deep.array')).toEqual(['changed1', 'changed2', 'changed3']);
+    expect(form.field.get('nested.deep.array')).toEqual(['changed1', 'changed2', 'changed3']);
 
-    form.resetField('nested.deep.array');
+    form.field.reset('nested.deep.array');
 
-    expect(form.get('nested.deep.array')).toEqual(['default1', 'default2']);
+    expect(form.field.get('nested.deep.array')).toEqual(['default1', 'default2']);
   });
 
   it('should not affect other fields when resetting single field', async () => {
     const { form } = await setup();
 
-    form.change('name', 'Changed Name');
-    form.change('email', 'changed@example.com');
-    form.change('age', 30);
+    form.field.change('name', 'Changed Name');
+    form.field.change('email', 'changed@example.com');
+    form.field.change('age', 30);
 
-    form.resetField('name');
+    form.field.reset('name');
 
-    expect(form.get('name')).toBe('Default Name');
-    expect(form.get('email')).toBe('changed@example.com');
-    expect(form.get('age')).toBe(30);
+    expect(form.field.get('name')).toBe('Default Name');
+    expect(form.field.get('email')).toBe('changed@example.com');
+    expect(form.field.get('age')).toBe(30);
   });
 });
 
@@ -93,47 +93,47 @@ describe('field metadata reset', () => {
   it('should reset field metadata to defaults', async () => {
     const { form } = await setup();
 
-    form.change('name', 'Changed Name');
-    form.focus('name');
-    form.blur('name');
+    form.field.change('name', 'Changed Name');
+    form.field.focus('name');
+    form.field.blur('name');
 
-    expect(form.meta('name').dirty).toBe(true);
-    expect(form.meta('name').touched).toBe(true);
-    expect(form.meta('name').blurred).toBe(true);
+    expect(form.field.meta('name').dirty).toBe(true);
+    expect(form.field.meta('name').touched).toBe(true);
+    expect(form.field.meta('name').blurred).toBe(true);
 
-    form.resetField('name');
+    form.field.reset('name');
 
-    expect(form.meta('name').dirty).toBe(false);
-    expect(form.meta('name').touched).toBe(false);
-    expect(form.meta('name').blurred).toBe(false);
+    expect(form.field.meta('name').dirty).toBe(false);
+    expect(form.field.meta('name').touched).toBe(false);
+    expect(form.field.meta('name').blurred).toBe(false);
   });
 
   it('should reset computed metadata properties', async () => {
     const { form } = await setup();
 
-    form.change('name', 'Changed Name');
+    form.field.change('name', 'Changed Name');
 
-    expect(form.meta('name').pristine).toBe(false);
-    expect(form.meta('name').default).toBe(false);
+    expect(form.field.meta('name').pristine).toBe(false);
+    expect(form.field.meta('name').default).toBe(false);
 
-    form.resetField('name');
+    form.field.reset('name');
 
-    expect(form.meta('name').pristine).toBe(true);
-    expect(form.meta('name').default).toBe(true);
+    expect(form.field.meta('name').pristine).toBe(true);
+    expect(form.field.meta('name').default).toBe(true);
   });
 
   it('should not affect metadata of other fields', async () => {
     const { form } = await setup();
 
-    form.change('name', 'Changed Name');
-    form.change('email', 'changed@example.com');
-    form.focus('email');
+    form.field.change('name', 'Changed Name');
+    form.field.change('email', 'changed@example.com');
+    form.field.focus('email');
 
-    form.resetField('name');
+    form.field.reset('name');
 
-    expect(form.meta('name').dirty).toBe(false);
-    expect(form.meta('email').dirty).toBe(true);
-    expect(form.meta('email').touched).toBe(true);
+    expect(form.field.meta('name').dirty).toBe(false);
+    expect(form.field.meta('email').dirty).toBe(true);
+    expect(form.field.meta('email').touched).toBe(true);
   });
 });
 
@@ -141,30 +141,30 @@ describe('field errors reset', () => {
   it('should clear field errors', async () => {
     const { form } = await setup();
 
-    form.change('email', 'invalid-email');
+    form.field.change('email', 'invalid-email');
     await form.validate();
 
-    expect(form.errors('email')).not.toHaveLength(0);
+    expect(form.field.errors('email')).not.toHaveLength(0);
 
-    form.resetField('email');
+    form.field.reset('email');
 
-    expect(form.errors('email')).toHaveLength(0);
+    expect(form.field.errors('email')).toHaveLength(0);
   });
 
   it('should not affect errors of other fields', async () => {
     const { form } = await setup();
 
-    form.change('email', 'invalid-email');
-    form.change('age', -5);
+    form.field.change('email', 'invalid-email');
+    form.field.change('age', -5);
     await form.validate();
 
-    expect(form.errors('email')).not.toHaveLength(0);
-    expect(form.errors('age')).not.toHaveLength(0);
+    expect(form.field.errors('email')).not.toHaveLength(0);
+    expect(form.field.errors('age')).not.toHaveLength(0);
 
-    form.resetField('email');
+    form.field.reset('email');
 
-    expect(form.errors('email')).toHaveLength(0);
-    expect(form.errors('age')).not.toHaveLength(0);
+    expect(form.field.errors('email')).toHaveLength(0);
+    expect(form.field.errors('age')).not.toHaveLength(0);
   });
 });
 
@@ -175,49 +175,49 @@ describe('field refs reset', () => {
     const nameElement = document.createElement('input');
     const emailElement = document.createElement('input');
 
-    form.register('name')(nameElement);
-    form.register('email')(emailElement);
+    form.field.register('name')(nameElement);
+    form.field.register('email')(emailElement);
 
     expect(form.store.state.refs.name).toBe(nameElement);
     expect(form.store.state.refs.email).toBe(emailElement);
 
-    form.resetField('name');
+    form.field.reset('name');
 
     expect(form.store.state.refs.name).toBeUndefined();
     expect(form.store.state.refs.email).toBe(emailElement);
   });
 });
 
-describe('resetField with options', () => {
+describe('reset with options', () => {
   describe('custom value option', () => {
     it('should reset field to custom value instead of default', async () => {
       const { form } = await setup();
 
-      form.change('name', 'Changed Name');
+      form.field.change('name', 'Changed Name');
 
-      form.resetField('name', { value: 'Custom Reset Value' });
+      form.field.reset('name', { value: 'Custom Reset Value' });
 
-      expect(form.get('name')).toBe('Custom Reset Value');
+      expect(form.field.get('name')).toBe('Custom Reset Value');
     });
 
     it('should reset nested field to custom value', async () => {
       const { form } = await setup();
 
-      form.change('nested.deep.value', 'changed');
+      form.field.change('nested.deep.value', 'changed');
 
-      form.resetField('nested.deep.value', { value: 'custom nested' });
+      form.field.reset('nested.deep.value', { value: 'custom nested' });
 
-      expect(form.get('nested.deep.value')).toBe('custom nested');
+      expect(form.field.get('nested.deep.value')).toBe('custom nested');
     });
 
     it('should reset array field to custom value', async () => {
       const { form } = await setup();
 
-      form.change('nested.deep.array', ['changed']);
+      form.field.change('nested.deep.array', ['changed']);
 
-      form.resetField('nested.deep.array', { value: ['custom1', 'custom2'] });
+      form.field.reset('nested.deep.array', { value: ['custom1', 'custom2'] });
 
-      expect(form.get('nested.deep.array')).toEqual(['custom1', 'custom2']);
+      expect(form.field.get('nested.deep.array')).toEqual(['custom1', 'custom2']);
     });
   });
 
@@ -225,47 +225,47 @@ describe('resetField with options', () => {
     it('should keep field metadata when keep.meta is true', async () => {
       const { form } = await setup();
 
-      form.change('name', 'Changed Name');
-      form.focus('name');
-      form.blur('name');
+      form.field.change('name', 'Changed Name');
+      form.field.focus('name');
+      form.field.blur('name');
 
-      expect(form.meta('name').dirty).toBe(true);
-      expect(form.meta('name').touched).toBe(true);
-      expect(form.meta('name').blurred).toBe(true);
+      expect(form.field.meta('name').dirty).toBe(true);
+      expect(form.field.meta('name').touched).toBe(true);
+      expect(form.field.meta('name').blurred).toBe(true);
 
-      form.resetField('name', { keep: { meta: true } });
+      form.field.reset('name', { keep: { meta: true } });
 
-      expect(form.get('name')).toBe('Default Name');
-      expect(form.meta('name').dirty).toBe(true);
-      expect(form.meta('name').touched).toBe(true);
-      expect(form.meta('name').blurred).toBe(true);
+      expect(form.field.get('name')).toBe('Default Name');
+      expect(form.field.meta('name').dirty).toBe(true);
+      expect(form.field.meta('name').touched).toBe(true);
+      expect(form.field.meta('name').blurred).toBe(true);
     });
 
     it('should keep field errors when keep.errors is true', async () => {
       const { form } = await setup();
 
-      form.change('email', 'invalid-email');
+      form.field.change('email', 'invalid-email');
       await form.validate();
 
-      expect(form.errors('email')).not.toHaveLength(0);
+      expect(form.field.errors('email')).not.toHaveLength(0);
 
-      form.resetField('email', { keep: { errors: true } });
+      form.field.reset('email', { keep: { errors: true } });
 
-      expect(form.get('email')).toBe('default@example.com');
-      expect(form.errors('email')).not.toHaveLength(0);
+      expect(form.field.get('email')).toBe('default@example.com');
+      expect(form.field.errors('email')).not.toHaveLength(0);
     });
 
     it('should keep field refs when keep.refs is true', async () => {
       const { form } = await setup();
 
       const nameElement = document.createElement('input');
-      form.register('name')(nameElement);
+      form.field.register('name')(nameElement);
 
-      form.change('name', 'Changed Name');
+      form.field.change('name', 'Changed Name');
 
-      form.resetField('name', { keep: { refs: true } });
+      form.field.reset('name', { keep: { refs: true } });
 
-      expect(form.get('name')).toBe('Default Name');
+      expect(form.field.get('name')).toBe('Default Name');
       expect(form.store.state.refs.name).toBe(nameElement);
     });
 
@@ -273,24 +273,21 @@ describe('resetField with options', () => {
       const { form } = await setup();
 
       const nameElement = document.createElement('input');
-      form.register('name')(nameElement);
+      form.field.register('name')(nameElement);
 
-      form.change('name', 'invalid-name-that-would-cause-error');
-      form.focus('name');
-      form.blur('name');
+      form.field.change('name', 'invalid-name-that-would-cause-error');
+      form.field.focus('name');
+      form.field.blur('name');
 
       const mockErrors = [{ code: 'test', message: 'Test error', path: ['name'] }];
-      form['persisted'].setState(current => ({
-        ...current,
-        errors: { ...current.errors, name: mockErrors },
-      }));
+      form.field.setErrors('name', mockErrors);
 
-      expect(form.meta('name').dirty).toBe(true);
-      expect(form.meta('name').touched).toBe(true);
-      expect(form.errors('name')).toEqual(mockErrors);
+      expect(form.field.meta('name').dirty).toBe(true);
+      expect(form.field.meta('name').touched).toBe(true);
+      expect(form.field.errors('name')).toEqual(mockErrors);
       expect(form.store.state.refs.name).toBe(nameElement);
 
-      form.resetField('name', {
+      form.field.reset('name', {
         keep: {
           meta: true,
           errors: true,
@@ -298,10 +295,10 @@ describe('resetField with options', () => {
         },
       });
 
-      expect(form.get('name')).toBe('Default Name');
-      expect(form.meta('name').dirty).toBe(true);
-      expect(form.meta('name').touched).toBe(true);
-      expect(form.errors('name')).toEqual(mockErrors);
+      expect(form.field.get('name')).toBe('Default Name');
+      expect(form.field.meta('name').dirty).toBe(true);
+      expect(form.field.meta('name').touched).toBe(true);
+      expect(form.field.errors('name')).toEqual(mockErrors);
       expect(form.store.state.refs.name).toBe(nameElement);
     });
   });
@@ -310,17 +307,17 @@ describe('resetField with options', () => {
     it('should handle custom value and keep options together', async () => {
       const { form } = await setup();
 
-      form.change('name', 'Changed Name');
-      form.focus('name');
+      form.field.change('name', 'Changed Name');
+      form.field.focus('name');
 
-      form.resetField('name', {
+      form.field.reset('name', {
         value: 'Custom Reset Value',
         keep: { meta: true },
       });
 
-      expect(form.get('name')).toBe('Custom Reset Value');
-      expect(form.meta('name').dirty).toBe(true);
-      expect(form.meta('name').touched).toBe(true);
+      expect(form.field.get('name')).toBe('Custom Reset Value');
+      expect(form.field.meta('name').dirty).toBe(true);
+      expect(form.field.meta('name').touched).toBe(true);
     });
   });
 
@@ -328,13 +325,13 @@ describe('resetField with options', () => {
     it('should set specific meta values when provided', async () => {
       const { form } = await setup();
 
-      form.change('name', 'Changed Name');
+      form.field.change('name', 'Changed Name');
 
-      expect(form.meta('name').dirty).toBe(true);
-      expect(form.meta('name').touched).toBe(true);
-      expect(form.meta('name').blurred).toBe(false);
+      expect(form.field.meta('name').dirty).toBe(true);
+      expect(form.field.meta('name').touched).toBe(true);
+      expect(form.field.meta('name').blurred).toBe(false);
 
-      form.resetField('name', {
+      form.field.reset('name', {
         meta: {
           dirty: false,
           touched: false,
@@ -342,24 +339,24 @@ describe('resetField with options', () => {
         },
       });
 
-      expect(form.get('name')).toBe('Default Name');
-      expect(form.meta('name').dirty).toBe(false);
-      expect(form.meta('name').touched).toBe(false);
-      expect(form.meta('name').blurred).toBe(true);
+      expect(form.field.get('name')).toBe('Default Name');
+      expect(form.field.meta('name').dirty).toBe(false);
+      expect(form.field.meta('name').touched).toBe(false);
+      expect(form.field.meta('name').blurred).toBe(true);
     });
 
     it('should partially override meta values if keep.meta is true', async () => {
       const { form } = await setup();
 
-      form.change('name', 'Changed Name');
-      form.focus('name');
-      form.blur('name');
+      form.field.change('name', 'Changed Name');
+      form.field.focus('name');
+      form.field.blur('name');
 
-      expect(form.meta('name').dirty).toBe(true);
-      expect(form.meta('name').touched).toBe(true);
-      expect(form.meta('name').blurred).toBe(true);
+      expect(form.field.meta('name').dirty).toBe(true);
+      expect(form.field.meta('name').touched).toBe(true);
+      expect(form.field.meta('name').blurred).toBe(true);
 
-      form.resetField('name', {
+      form.field.reset('name', {
         meta: {
           dirty: false,
         },
@@ -368,39 +365,39 @@ describe('resetField with options', () => {
         },
       });
 
-      expect(form.get('name')).toBe('Default Name');
-      expect(form.meta('name').dirty).toBe(false);
-      expect(form.meta('name').touched).toBe(true);
-      expect(form.meta('name').blurred).toBe(true);
+      expect(form.field.get('name')).toBe('Default Name');
+      expect(form.field.meta('name').dirty).toBe(false);
+      expect(form.field.meta('name').touched).toBe(true);
+      expect(form.field.meta('name').blurred).toBe(true);
     });
 
     it('should fully override meta values if keep.meta is undefined', async () => {
       const { form } = await setup();
 
-      form.change('name', 'Changed Name');
-      form.focus('name');
-      form.blur('name');
+      form.field.change('name', 'Changed Name');
+      form.field.focus('name');
+      form.field.blur('name');
 
-      expect(form.meta('name').dirty).toBe(true);
-      expect(form.meta('name').touched).toBe(true);
-      expect(form.meta('name').blurred).toBe(true);
+      expect(form.field.meta('name').dirty).toBe(true);
+      expect(form.field.meta('name').touched).toBe(true);
+      expect(form.field.meta('name').blurred).toBe(true);
 
-      form.resetField('name', {
+      form.field.reset('name', {
         meta: {
           blurred: true,
         },
       });
 
-      expect(form.get('name')).toBe('Default Name');
-      expect(form.meta('name').dirty).toBe(false);
-      expect(form.meta('name').touched).toBe(false);
-      expect(form.meta('name').blurred).toBe(true);
+      expect(form.field.get('name')).toBe('Default Name');
+      expect(form.field.meta('name').dirty).toBe(false);
+      expect(form.field.meta('name').touched).toBe(false);
+      expect(form.field.meta('name').blurred).toBe(true);
     });
 
     it('should work with custom value and meta overrides', async () => {
       const { form } = await setup();
 
-      form.resetField('name', {
+      form.field.reset('name', {
         value: 'Custom Value',
         meta: {
           dirty: true,
@@ -409,44 +406,44 @@ describe('resetField with options', () => {
         },
       });
 
-      expect(form.get('name')).toBe('Custom Value');
-      expect(form.meta('name').dirty).toBe(true);
-      expect(form.meta('name').touched).toBe(true);
-      expect(form.meta('name').blurred).toBe(false);
+      expect(form.field.get('name')).toBe('Custom Value');
+      expect(form.field.meta('name').dirty).toBe(true);
+      expect(form.field.meta('name').touched).toBe(true);
+      expect(form.field.meta('name').blurred).toBe(false);
     });
 
     it('should work with keep.meta true and meta overrides', async () => {
       const { form } = await setup();
 
-      form.change('name', 'Changed Name');
-      form.focus('name');
-      form.blur('name');
+      form.field.change('name', 'Changed Name');
+      form.field.focus('name');
+      form.field.blur('name');
 
-      expect(form.meta('name').dirty).toBe(true);
-      expect(form.meta('name').touched).toBe(true);
-      expect(form.meta('name').blurred).toBe(true);
+      expect(form.field.meta('name').dirty).toBe(true);
+      expect(form.field.meta('name').touched).toBe(true);
+      expect(form.field.meta('name').blurred).toBe(true);
 
-      form.resetField('name', {
+      form.field.reset('name', {
         keep: { meta: true },
         meta: {
           blurred: false,
         },
       });
 
-      expect(form.get('name')).toBe('Default Name');
-      expect(form.meta('name').dirty).toBe(true);
-      expect(form.meta('name').touched).toBe(true);
-      expect(form.meta('name').blurred).toBe(false);
+      expect(form.field.get('name')).toBe('Default Name');
+      expect(form.field.meta('name').dirty).toBe(true);
+      expect(form.field.meta('name').touched).toBe(true);
+      expect(form.field.meta('name').blurred).toBe(false);
     });
 
     it('should create meta when field has no existing meta', async () => {
       const { form } = await setup();
 
-      expect(form.meta('name').dirty).toBe(false);
-      expect(form.meta('name').touched).toBe(false);
-      expect(form.meta('name').blurred).toBe(false);
+      expect(form.field.meta('name').dirty).toBe(false);
+      expect(form.field.meta('name').touched).toBe(false);
+      expect(form.field.meta('name').blurred).toBe(false);
 
-      form.resetField('name', {
+      form.field.reset('name', {
         meta: {
           dirty: true,
           touched: true,
@@ -454,50 +451,47 @@ describe('resetField with options', () => {
         },
       });
 
-      expect(form.get('name')).toBe('Default Name');
-      expect(form.meta('name').dirty).toBe(true);
-      expect(form.meta('name').touched).toBe(true);
-      expect(form.meta('name').blurred).toBe(true);
+      expect(form.field.get('name')).toBe('Default Name');
+      expect(form.field.meta('name').dirty).toBe(true);
+      expect(form.field.meta('name').touched).toBe(true);
+      expect(form.field.meta('name').blurred).toBe(true);
     });
 
     it('should handle meta overrides with nested fields', async () => {
       const { form } = await setup();
 
-      form.change('nested.deep.value', 'changed value');
-      form.focus('nested.deep.value');
+      form.field.change('nested.deep.value', 'changed value');
+      form.field.focus('nested.deep.value');
 
-      expect(form.meta('nested.deep.value').dirty).toBe(true);
-      expect(form.meta('nested.deep.value').touched).toBe(true);
-      expect(form.meta('nested.deep.value').blurred).toBe(false);
+      expect(form.field.meta('nested.deep.value').dirty).toBe(true);
+      expect(form.field.meta('nested.deep.value').touched).toBe(true);
+      expect(form.field.meta('nested.deep.value').blurred).toBe(false);
 
-      form.resetField('nested.deep.value', {
+      form.field.reset('nested.deep.value', {
         meta: {
           dirty: false,
           blurred: true,
         },
       });
 
-      expect(form.get('nested.deep.value')).toBe('default value');
-      expect(form.meta('nested.deep.value').dirty).toBe(false);
-      expect(form.meta('nested.deep.value').touched).toBe(false);
-      expect(form.meta('nested.deep.value').blurred).toBe(true);
+      expect(form.field.get('nested.deep.value')).toBe('default value');
+      expect(form.field.meta('nested.deep.value').dirty).toBe(false);
+      expect(form.field.meta('nested.deep.value').touched).toBe(false);
+      expect(form.field.meta('nested.deep.value').blurred).toBe(true);
     });
 
     it('should handle meta overrides with all options combined', async () => {
       const { form } = await setup();
 
       const nameElement = document.createElement('input');
-      form.register('name')(nameElement);
+      form.field.register('name')(nameElement);
 
-      form.change('name', 'invalid-name');
+      form.field.change('name', 'invalid-name');
 
       const mockErrors = [{ code: 'test', message: 'Test error', path: ['name'] }];
-      form['persisted'].setState(current => ({
-        ...current,
-        errors: { ...current.errors, name: mockErrors },
-      }));
+      form.field.setErrors('name', mockErrors);
 
-      form.resetField('name', {
+      form.field.reset('name', {
         value: 'Custom Reset Value',
         meta: {
           dirty: true,
@@ -510,11 +504,11 @@ describe('resetField with options', () => {
         },
       });
 
-      expect(form.get('name')).toBe('Custom Reset Value');
-      expect(form.meta('name').dirty).toBe(true);
-      expect(form.meta('name').touched).toBe(true);
-      expect(form.meta('name').blurred).toBe(false);
-      expect(form.errors('name')).toEqual(mockErrors);
+      expect(form.field.get('name')).toBe('Custom Reset Value');
+      expect(form.field.meta('name').dirty).toBe(true);
+      expect(form.field.meta('name').touched).toBe(true);
+      expect(form.field.meta('name').blurred).toBe(false);
+      expect(form.field.errors('name')).toEqual(mockErrors);
       expect(form.store.state.refs.name).toBe(nameElement);
     });
   });
@@ -525,37 +519,37 @@ describe('edge cases', () => {
     const { form } = await setup();
 
     expect(() => {
-      form.resetField('nonExistent' as any);
+      form.field.reset('nonExistent' as any);
     }).not.toThrow();
   });
 
   it('should handle undefined custom value gracefully', async () => {
     const { form } = await setup();
 
-    form.change('name', 'Changed Name');
+    form.field.change('name', 'Changed Name');
 
-    form.resetField('name', { value: undefined });
+    form.field.reset('name', { value: undefined });
 
-    expect(form.get('name')).toBe('Default Name');
+    expect(form.field.get('name')).toBe('Default Name');
   });
 
   it('should work after form reset', async () => {
     const { form } = await setup();
 
-    form.change('name', 'Changed Name');
-    form.change('email', 'changed@example.com');
+    form.field.change('name', 'Changed Name');
+    form.field.change('email', 'changed@example.com');
 
     form.reset();
 
-    expect(form.get('name')).toBe('Default Name');
-    expect(form.get('email')).toBe('default@example.com');
+    expect(form.field.get('name')).toBe('Default Name');
+    expect(form.field.get('email')).toBe('default@example.com');
 
-    form.change('name', 'New Change');
+    form.field.change('name', 'New Change');
 
-    form.resetField('name');
+    form.field.reset('name');
 
-    expect(form.get('name')).toBe('Default Name');
-    expect(form.get('email')).toBe('default@example.com');
+    expect(form.field.get('name')).toBe('Default Name');
+    expect(form.field.get('email')).toBe('default@example.com');
   });
 
   it('should not affect form-level status', async () => {
@@ -567,8 +561,8 @@ describe('edge cases', () => {
     expect(form.status.submits).toBe(1);
     expect(form.status.submitted).toBe(true);
 
-    form.change('name', 'Changed Name');
-    form.resetField('name');
+    form.field.change('name', 'Changed Name');
+    form.field.reset('name');
 
     expect(form.status.submits).toBe(1);
     expect(form.status.submitted).toBe(true);
@@ -579,15 +573,15 @@ describe('integration with other form methods', () => {
   it('should work correctly with validation', async () => {
     const { form } = await setup();
 
-    form.change('email', 'invalid-email');
+    form.field.change('email', 'invalid-email');
     await form.validate();
 
-    expect(form.errors('email')).not.toHaveLength(0);
+    expect(form.field.errors('email')).not.toHaveLength(0);
     expect(form.status.valid).toBe(false);
 
-    form.resetField('email');
+    form.field.reset('email');
 
-    expect(form.errors('email')).toHaveLength(0);
+    expect(form.field.errors('email')).toHaveLength(0);
     await form.validate();
     expect(form.status.valid).toBe(true);
   });
@@ -595,29 +589,29 @@ describe('integration with other form methods', () => {
   it('should work correctly after field interactions', async () => {
     const { form } = await setup();
 
-    form.change('name', 'Changed Name');
-    form.focus('name');
-    form.blur('name');
+    form.field.change('name', 'Changed Name');
+    form.field.focus('name');
+    form.field.blur('name');
 
     const nameElement = document.createElement('input');
-    form.register('name')(nameElement);
+    form.field.register('name')(nameElement);
 
-    expect(form.get('name')).toBe('Changed Name');
-    expect(form.meta('name').dirty).toBe(true);
-    expect(form.meta('name').touched).toBe(true);
-    expect(form.meta('name').blurred).toBe(true);
+    expect(form.field.get('name')).toBe('Changed Name');
+    expect(form.field.meta('name').dirty).toBe(true);
+    expect(form.field.meta('name').touched).toBe(true);
+    expect(form.field.meta('name').blurred).toBe(true);
     expect(form.store.state.refs.name).toBe(nameElement);
 
-    form.resetField('name');
+    form.field.reset('name');
 
-    expect(form.get('name')).toBe('Default Name');
-    expect(form.meta('name').dirty).toBe(false);
-    expect(form.meta('name').touched).toBe(false);
-    expect(form.meta('name').blurred).toBe(false);
+    expect(form.field.get('name')).toBe('Default Name');
+    expect(form.field.meta('name').dirty).toBe(false);
+    expect(form.field.meta('name').touched).toBe(false);
+    expect(form.field.meta('name').blurred).toBe(false);
     expect(form.store.state.refs.name).toBeUndefined();
 
-    form.change('name', 'New Value After Reset');
-    expect(form.get('name')).toBe('New Value After Reset');
-    expect(form.meta('name').dirty).toBe(true);
+    form.field.change('name', 'New Value After Reset');
+    expect(form.field.get('name')).toBe('New Value After Reset');
+    expect(form.field.meta('name').dirty).toBe(true);
   });
 });

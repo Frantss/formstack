@@ -52,8 +52,8 @@ describe('FieldApi methods', () => {
 
       expect(issues).toHaveLength(1);
       expect(issues[0].path).toEqual(['name']);
-      expect(form.errors('name')).toHaveLength(1);
-      expect(form.errors('email')).toHaveLength(0);
+      expect(form.field.errors('name')).toHaveLength(1);
+      expect(form.field.errors('email')).toHaveLength(0);
     });
 
     it('should validate field with different validation types', async () => {
@@ -308,14 +308,14 @@ describe('FieldApi methods', () => {
       nameField.setErrors([mockError]);
 
       // Should be reflected in form
-      expect(form.errors('name')).toEqual([mockError]);
+      expect(form.field.errors('name')).toEqual([mockError]);
       expect(form.store.state.status.valid).toBe(false);
 
       // Clear error through field
       nameField.setErrors([]);
 
       // Should be reflected in form
-      expect(form.errors('name')).toEqual([]);
+      expect(form.field.errors('name')).toEqual([]);
       expect(form.store.state.status.valid).toBe(true);
     });
 
@@ -325,10 +325,10 @@ describe('FieldApi methods', () => {
       // Change field value
       nameField.change('Jane');
       expect(nameField.value).toBe('Jane');
-      expect(form.get('name')).toBe('Jane');
+      expect(form.field.get('name')).toBe('Jane');
 
       // Reset through form
-      form.resetField('name');
+      form.field.reset('name');
       expect(nameField.value).toBe('John');
 
       // Validate through form

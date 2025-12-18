@@ -45,38 +45,38 @@ describe('replace mode (default)', () => {
   it('should set errors for a field with no existing errors', () => {
     const { form } = setup();
 
-    form.setErrors('name', [mockError]);
+    form.field.setErrors('name', [mockError]);
 
-    expect(form.errors('name')).toEqual([mockError]);
+    expect(form.field.errors('name')).toEqual([mockError]);
   });
 
   it('should replace existing errors by default', () => {
     const { form } = setup();
 
-    form.setErrors('name', [mockError]);
-    expect(form.errors('name')).toEqual([mockError]);
+    form.field.setErrors('name', [mockError]);
+    expect(form.field.errors('name')).toEqual([mockError]);
 
-    form.setErrors('name', [mockError2]);
-    expect(form.errors('name')).toEqual([mockError2]);
+    form.field.setErrors('name', [mockError2]);
+    expect(form.field.errors('name')).toEqual([mockError2]);
   });
 
   it('should replace existing errors when mode is explicitly set to replace', () => {
     const { form } = setup();
 
-    form.setErrors('name', [mockError]);
-    form.setErrors('name', [mockError2], { mode: 'replace' });
+    form.field.setErrors('name', [mockError]);
+    form.field.setErrors('name', [mockError2], { mode: 'replace' });
 
-    expect(form.errors('name')).toEqual([mockError2]);
+    expect(form.field.errors('name')).toEqual([mockError2]);
   });
 
   it('should clear errors when setting empty array', () => {
     const { form } = setup();
 
-    form.setErrors('name', [mockError]);
-    expect(form.errors('name')).toEqual([mockError]);
+    form.field.setErrors('name', [mockError]);
+    expect(form.field.errors('name')).toEqual([mockError]);
 
-    form.setErrors('name', []);
-    expect(form.errors('name')).toEqual([]);
+    form.field.setErrors('name', []);
+    expect(form.field.errors('name')).toEqual([]);
   });
 });
 
@@ -84,18 +84,18 @@ describe('append mode', () => {
   it('should append new errors to existing ones', () => {
     const { form } = setup();
 
-    form.setErrors('name', [mockError]);
-    form.setErrors('name', [mockError2], { mode: 'append' });
+    form.field.setErrors('name', [mockError]);
+    form.field.setErrors('name', [mockError2], { mode: 'append' });
 
-    expect(form.errors('name')).toEqual([mockError, mockError2]);
+    expect(form.field.errors('name')).toEqual([mockError, mockError2]);
   });
 
   it('should append to empty error list', () => {
     const { form } = setup();
 
-    form.setErrors('name', [mockError], { mode: 'append' });
+    form.field.setErrors('name', [mockError], { mode: 'append' });
 
-    expect(form.errors('name')).toEqual([mockError]);
+    expect(form.field.errors('name')).toEqual([mockError]);
   });
 
   it('should append multiple errors at once', () => {
@@ -107,10 +107,10 @@ describe('append mode', () => {
       path: ['name'],
     } as any;
 
-    form.setErrors('name', [mockError]);
-    form.setErrors('name', [mockError2, additionalError], { mode: 'append' });
+    form.field.setErrors('name', [mockError]);
+    form.field.setErrors('name', [mockError2, additionalError], { mode: 'append' });
 
-    expect(form.errors('name')).toEqual([mockError, mockError2, additionalError]);
+    expect(form.field.errors('name')).toEqual([mockError, mockError2, additionalError]);
   });
 });
 
@@ -118,27 +118,27 @@ describe('keep mode', () => {
   it('should keep existing errors when they exist', () => {
     const { form } = setup();
 
-    form.setErrors('name', [mockError]);
-    form.setErrors('name', [mockError2], { mode: 'keep' });
+    form.field.setErrors('name', [mockError]);
+    form.field.setErrors('name', [mockError2], { mode: 'keep' });
 
-    expect(form.errors('name')).toEqual([mockError]);
+    expect(form.field.errors('name')).toEqual([mockError]);
   });
 
   it('should set new errors when no existing errors', () => {
     const { form } = setup();
 
-    form.setErrors('name', [mockError], { mode: 'keep' });
+    form.field.setErrors('name', [mockError], { mode: 'keep' });
 
-    expect(form.errors('name')).toEqual([mockError]);
+    expect(form.field.errors('name')).toEqual([mockError]);
   });
 
   it('should not change errors when trying to set empty array with existing errors', () => {
     const { form } = setup();
 
-    form.setErrors('name', [mockError]);
-    form.setErrors('name', [], { mode: 'keep' });
+    form.field.setErrors('name', [mockError]);
+    form.field.setErrors('name', [], { mode: 'keep' });
 
-    expect(form.errors('name')).toEqual([mockError]);
+    expect(form.field.errors('name')).toEqual([mockError]);
   });
 });
 
@@ -152,9 +152,9 @@ describe('nested fields', () => {
       path: ['nested', 'value'],
     } as any;
 
-    form.setErrors('nested.value', [nestedError]);
+    form.field.setErrors('nested.value', [nestedError]);
 
-    expect(form.errors('nested.value')).toEqual([nestedError]);
+    expect(form.field.errors('nested.value')).toEqual([nestedError]);
   });
 
   it('should work with all modes for nested fields', () => {
@@ -172,15 +172,15 @@ describe('nested fields', () => {
       path: ['nested', 'value'],
     } as any;
 
-    form.setErrors('nested.value', [nestedError1]);
-    form.setErrors('nested.value', [nestedError2], { mode: 'append' });
-    expect(form.errors('nested.value')).toEqual([nestedError1, nestedError2]);
+    form.field.setErrors('nested.value', [nestedError1]);
+    form.field.setErrors('nested.value', [nestedError2], { mode: 'append' });
+    expect(form.field.errors('nested.value')).toEqual([nestedError1, nestedError2]);
 
-    form.setErrors('nested.value', [{ ...nestedError1, code: 'should_not_appear' } as any], { mode: 'keep' });
-    expect(form.errors('nested.value')).toEqual([nestedError1, nestedError2]);
+    form.field.setErrors('nested.value', [{ ...nestedError1, code: 'should_not_appear' } as any], { mode: 'keep' });
+    expect(form.field.errors('nested.value')).toEqual([nestedError1, nestedError2]);
 
-    form.setErrors('nested.value', [nestedError1], { mode: 'replace' });
-    expect(form.errors('nested.value')).toEqual([nestedError1]);
+    form.field.setErrors('nested.value', [nestedError1], { mode: 'replace' });
+    expect(form.field.errors('nested.value')).toEqual([nestedError1]);
   });
 });
 
@@ -200,15 +200,15 @@ describe('multiple fields', () => {
       path: ['email'],
     } as any;
 
-    form.setErrors('name', [nameError]);
-    form.setErrors('email', [emailError]);
+    form.field.setErrors('name', [nameError]);
+    form.field.setErrors('email', [emailError]);
 
-    expect(form.errors('name')).toEqual([nameError]);
-    expect(form.errors('email')).toEqual([emailError]);
+    expect(form.field.errors('name')).toEqual([nameError]);
+    expect(form.field.errors('email')).toEqual([emailError]);
 
-    form.setErrors('name', []);
-    expect(form.errors('name')).toEqual([]);
-    expect(form.errors('email')).toEqual([emailError]);
+    form.field.setErrors('name', []);
+    expect(form.field.errors('name')).toEqual([]);
+    expect(form.field.errors('email')).toEqual([emailError]);
   });
 });
 
@@ -218,7 +218,7 @@ describe('form status updates', () => {
 
     expect(form.store.state.status.valid).toBe(true);
 
-    form.setErrors('name', [mockError]);
+    form.field.setErrors('name', [mockError]);
 
     expect(form.store.state.status.valid).toBe(false);
   });
@@ -226,25 +226,25 @@ describe('form status updates', () => {
   it('should update form validity when errors are cleared', () => {
     const { form } = setup();
 
-    form.setErrors('name', [mockError]);
+    form.field.setErrors('name', [mockError]);
     expect(form.store.state.status.valid).toBe(false);
 
-    form.setErrors('name', []);
+    form.field.setErrors('name', []);
     expect(form.store.state.status.valid).toBe(true);
   });
 
   it('should maintain field meta state when setting errors manually', () => {
     const { form } = setup();
 
-    form.change('name', 'Jane');
-    form.focus('name');
-    form.blur('name');
+    form.field.change('name', 'Jane');
+    form.field.focus('name');
+    form.field.blur('name');
 
-    const metaBefore = form.meta('name');
+    const metaBefore = form.field.meta('name');
 
-    form.setErrors('name', [mockError]);
+    form.field.setErrors('name', [mockError]);
 
-    const metaAfter = form.meta('name');
+    const metaAfter = form.field.meta('name');
 
     expect(metaAfter.dirty).toBe(metaBefore.dirty);
     expect(metaAfter.touched).toBe(metaBefore.touched);

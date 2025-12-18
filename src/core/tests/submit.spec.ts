@@ -100,8 +100,8 @@ describe('on error', async () => {
   });
 
   it('should set the corresponding field errors', () => {
-    expect(form.errors('nested')).toStrictEqual([]);
-    expect(form.errors('name')).toEqual([
+    expect(form.field.errors('nested')).toStrictEqual([]);
+    expect(form.field.errors('name')).toEqual([
       {
         code: 'invalid_type',
         expected: 'string',
@@ -202,7 +202,7 @@ describe('submit without onError callback', async () => {
   });
 
   it('should still set field errors', () => {
-    expect(form.errors('name')).toEqual([
+    expect(form.field.errors('name')).toEqual([
       {
         code: 'invalid_type',
         expected: 'string',
@@ -305,7 +305,7 @@ describe('submit with custom submit validator', async () => {
   });
 
   it('should set corresponding field errors from custom validator', () => {
-    expect(form.errors('name')).toEqual([
+    expect(form.field.errors('name')).toEqual([
       {
         code: 'too_small',
         origin: 'string',
@@ -351,7 +351,7 @@ describe('submit with deep nested errors', async () => {
   });
 
   it('should set errors on nested paths', () => {
-    expect(form.errors('nested.deep.deeper.0' as any)).toEqual([
+    expect(form.field.errors('nested.deep.deeper.0' as any)).toEqual([
       {
         code: 'invalid_type',
         expected: 'string',
@@ -366,7 +366,7 @@ describe('submit sequence - success then error', async () => {
   const { form } = await setup({ values: validValues });
   await form.submit(() => {})();
 
-  form.change('name', 5 as any);
+  form.field.change('name', 5 as any);
 
   const onError = vi.fn();
   await form.submit(() => {}, onError)();
@@ -382,7 +382,7 @@ describe('submit sequence - error then success', async () => {
   const { form } = await setup({ values: { ...validValues, name: 6 } as any });
   await form.submit(() => {})();
 
-  form.change('name', 'John');
+  form.field.change('name', 'John');
 
   const onSuccess = vi.fn();
   await form.submit(onSuccess)();
@@ -394,7 +394,7 @@ describe('submit sequence - error then success', async () => {
   });
 
   it('should clear previous errors', () => {
-    expect(form.errors('name')).toEqual([]);
+    expect(form.field.errors('name')).toEqual([]);
   });
 });
 
