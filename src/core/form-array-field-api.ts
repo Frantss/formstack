@@ -66,6 +66,7 @@ export class FormArrayFieldApi<
         fields,
       };
     });
+
   };
 
   public append = <Name extends ArrayField>(
@@ -161,6 +162,29 @@ export class FormArrayFieldApi<
       };
     });
   }
+
+  public update = <Name extends ArrayField>(
+    name: Name,
+    index: number,
+    value: Updater<UnwrapOneLevelOfArray<DeepValue<Values, Name>>>,
+    options?: FieldChangeOptions,
+  ) => {
+    this.field.change(name, current => {
+      const array = (current as any[]) ?? [];
+      const position = Math.max(Math.min(index, array.length - 1), 0);
+
+      return [
+        ...array.slice(0, position),
+        update(value, current as never),
+        ...array.slice(position + 1),
+      ] as never;
+    }, options);
+
+    this.context.resetFieldMeta(`${name}.${index}`);
+    this.context.setFieldMeta(`${name}.${index}`, { dirty: options?.should?.dirty !== false, 
+      touched: options?.should?.touch !== false
+      });
+  };
 
   public replace<Name extends ArrayField>(
     name: Name,

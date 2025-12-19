@@ -113,3 +113,23 @@ describe('meta handling', () => {
     expect(form.field.meta('array.2').touched).toBe(false);
   });
 });
+
+describe('validation', () => {
+  it('should validate a field', async () => {
+    const { form } = setup({validate: { change: schema }});
+
+    form.array.prepend('array', 0 as any);
+
+    await expect.poll(() => form.field.meta('array.0').valid).toBe(false);
+    expect(form.field.errors('array.0')).toHaveLength(1);
+  });
+
+  it('should not validate a field when should.validate is false', async () => {
+    const { form } = setup({ validate: { change: schema } });
+
+    form.array.prepend('array', 0 as any, { should: { validate: false } });
+
+    expect(form.field.meta('array.0').valid).toBe(true);
+    expect(form.field.errors('array.0')).toHaveLength(0);
+  });
+});

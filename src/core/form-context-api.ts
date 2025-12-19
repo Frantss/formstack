@@ -183,13 +183,16 @@ export class FormContextApi<
     this.setStatus({ validating: true });
 
     const { issues: allIssues } = await validate(validator, this.store.state.values);
+
     const fields = field ? (Array.isArray(field) ? field : [field]) : undefined;
     const related: string[] = fields?.flatMap(field => this.options.related?.[field as never] ?? []) ?? [];
+    const affected = [...fields ?? [], ...related];
 
     const issues = (allIssues ?? []).filter(issue => {
       const path = issue.path?.join('.') ?? 'root';
-      return !fields || fields.includes(path as never) || related.includes(path as never);
+      return !fields || affected.some(key => path.startsWith(key));
     });
+
 
     const errors = issues.reduce((acc, issue) => {
       const path = issue.path?.join('.') ?? 'root';
@@ -199,10 +202,11 @@ export class FormContextApi<
       };
     }, {} as any);
 
+
     this.persisted.setState(current => {
       const existing = { ...current.errors };
 
-      for (const key of [...(fields ?? []), ...related]) {
+      for (const key of affected) {
         delete existing[key];
       }
 

@@ -92,8 +92,6 @@ describe('meta handling', () => {
     form.field.change('array.1', 'updated', { should: { dirty: false } });
     form.array.move('array', 0, 1);
 
-    console.log(form.store.state.fields);
-
     expect(form.field.meta('array.0').dirty).toBe(false);
     expect(form.field.meta('array.0').touched).toBe(true);
 

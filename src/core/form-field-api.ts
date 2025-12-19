@@ -45,7 +45,7 @@ export class FormFieldApi<
       };
     });
 
-    if (shouldValidate) void this.context.validate(name, { type: 'change' });
+    if (shouldValidate) this.context.validate(name, { type: 'change' });
 
     batch(() => {
       if (shouldDirty) this.context.setFieldMeta(name, { dirty: true });

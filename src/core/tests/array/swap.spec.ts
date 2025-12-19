@@ -119,3 +119,32 @@ describe('edge cases', () => {
     expect(form.field.get('array')).toEqual(['item1', 'item2']);
   });
 });
+
+
+describe('validation', () => {
+  it('should validate on swap by default', async () => {
+    const { form } = setup({validate: { change: schema }});
+
+    form.field.change('array.0', 0 as any, {should: {validate: false}});
+    form.array.swap('array', 0, 1);
+
+    await expect.poll(() => form.field.meta('array.1').valid).toBe(false);
+    expect(form.field.errors('array.1')).toHaveLength(1);
+
+    expect(form.field.meta('array.0').valid).toBe(true);
+    expect(form.field.errors('array.0')).toHaveLength(0);
+  });
+
+  it('should not validate on swap by default when should.validate is false', async () => {
+    const { form } = setup({ validate: { change: schema } });
+
+    form.field.change('array.0', 0 as any, {should: {validate: false}});
+    form.array.swap('array', 0, 1, { should: { validate: false } });
+
+    expect(form.field.meta('array.1').valid).toBe(true);
+    expect(form.field.errors('array.1')).toHaveLength(0);
+
+    expect(form.field.meta('array.0').valid).toBe(true);
+    expect(form.field.errors('array.0')).toHaveLength(0);
+  });
+});

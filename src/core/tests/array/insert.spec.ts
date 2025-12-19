@@ -157,3 +157,23 @@ describe('edge cases', () => {
     expect(form.field.get('array')).toEqual(['inserted', 'item1', 'item2']);
   });
 });
+
+describe('validation', () => {
+  it('should validate on insert by default', async () => {
+    const { form } = setup({validate: { change: schema }});
+
+    form.array.insert('array', 0, 0 as any);
+
+    await expect.poll(() => form.field.meta('array.0').valid).toBe(false);
+    expect(form.field.errors('array.0')).toHaveLength(1);
+  });
+
+  it('should not validate on insert by default when should.validate is false', async () => {
+    const { form } = setup({ validate: { change: schema } });
+
+    form.array.insert('array', 0, 0 as any, { should: { validate: false } });
+
+    expect(form.field.meta('array.0').valid).toBe(true);
+    expect(form.field.errors('array.0')).toHaveLength(0);
+  });
+});
