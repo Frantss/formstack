@@ -29,13 +29,13 @@ jobs:
         run: bunx playwright install --with-deps --only-shell
 
       - name: Check types
-        run: bun run lint:types
+        run: bun run check:types
 
       - name: Check lint rules
-        run: bun run lint:rules
+        run: bun run check:rules
 
       - name: Check formatting
-        run: bun run lint:format
+        run: bun run check:format
 
       - name: Run tests
         run: bun run test

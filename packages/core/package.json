@@ -6,12 +6,9 @@
   "license": "MIT",
   "sideEffects": false,
   "type": "module",
-  "main": "./dist/index.js",
+  "main": "./dist/index.cjs",
   "imports": {
-    "#*": [
-      "./src/*.ts",
-      "./src/**/*.ts"
-    ]
+    "#*": "./src/*.ts"
   },
   "exports": {
     ".": "./export/index.ts",
@@ -19,11 +16,15 @@
     "./schema": "./export/schema.ts"
   },
   "module": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "types": "./dist/index.d.cts",
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsdown --config-loader unrun",
     "test": "vitest",
-    "lint:types": "tsc --noEmit"
+    "check:types": "tsc --noEmit",
+    "check:package": "publint --strict"
   },
   "dependencies": {
     "@standard-schema/spec": "catalog:oxform",
@@ -32,6 +33,7 @@
     "type-fest": "^5.3.1"
   },
   "devDependencies": {
+    "publint": "catalog:oxform",
     "tsdown": "catalog:oxform",
     "typescript": "catalog:oxform",
     "vitest": "catalog:oxform",
@@ -39,8 +41,14 @@
   },
   "publishConfig": {
     "exports": {
-      ".": "./dist/index.js",
-      "./schema": "./dist/schema.js",
+      ".": {
+        "require": "./dist/index.cjs",
+        "import": "./dist/index.js"
+      },
+      "./schema": {
+        "require": "./dist/schema.cjs",
+        "import": "./dist/schema.js"
+      },
       "./package.json": "./package.json"
     }
   }

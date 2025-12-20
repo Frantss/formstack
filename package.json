@@ -17,17 +17,22 @@
         "vitest": "^4.0.16",
         "@vitest/browser-playwright": "^4.0.16",
         "playwright": "^1.57.0",
-        "tsdown": "^0.18.1"
+        "tsdown": "^0.18.1",
+        "publint": "^0.3.16"
       }
     }
   },
   "scripts": {
     "build": "bun --filter '*' build",
+    "postbuild": "bun run fix:format",
     "test": "bun --filter '*' test",
-    "lint:types": "bun --filter '*' lint:types",
-    "lint:rules": "oxlint --type-aware",
-    "lint:format": "oxfmt --check",
-    "lint:fix": "oxlint --type-aware --fix --fix-suggestions --fix-dangerously && oxfmt"
+    "check:package": "bun --filter '*' check:package",
+    "check:types": "bun --filter '*' check:types",
+    "check:rules": "oxlint --type-aware",
+    "check:format": "oxfmt --check",
+    "fix:rules": "oxlint --type-aware --fix --fix-suggestions",
+    "fix:format": "oxfmt",
+    "fix:all": "bun run fix:rules && bun run fix:format"
   },
   "devDependencies": {
     "@vitest/browser-playwright": "catalog:oxform",

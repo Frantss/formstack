@@ -6,23 +6,24 @@
   "license": "MIT",
   "sideEffects": false,
   "type": "module",
-  "main": "./dist/index.js",
+  "main": "./dist/index.cjs",
   "imports": {
-    "#*": [
-      "./src/*.ts",
-      "./src/**/*.ts"
-    ]
+    "#*": "./src/*.ts"
   },
   "exports": {
     ".": "./export/index.ts",
     "./package.json": "./package.json"
   },
   "module": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "types": "./dist/index.d.cts",
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsdown --config-loader unrun",
     "test": "vitest",
-    "lint:types": "tsc --noEmit"
+    "check:types": "tsc --noEmit",
+    "check:package": "publint --strict"
   },
   "dependencies": {
     "@standard-schema/spec": "catalog:oxform",
@@ -33,6 +34,7 @@
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^5.1.2",
+    "publint": "catalog:oxform",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "tsdown": "catalog:oxform",
@@ -47,7 +49,10 @@
   },
   "publishConfig": {
     "exports": {
-      ".": "./dist/index.js",
+      ".": {
+        "require": "./dist/index.cjs",
+        "import": "./dist/index.js"
+      },
       "./package.json": "./package.json"
     }
   }
