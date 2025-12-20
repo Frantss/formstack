@@ -1,0 +1,10 @@
+import { defineConfig } from 'tsdown';
+import base from '../../tsdown.config';
+
+export default defineConfig({
+  ...base,
+  entry: {
+    index: 'export/index.ts',
+    schema: 'export/schema.ts',
+  },
+});

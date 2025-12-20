@@ -1,0 +1,39 @@
+{
+  "name": "oxform-core",
+  "description": "Oxform is a lean and flexible framework-agnostic form library.",
+  "author": "Frantss <frantss.bongiovanni@gmail.com>",
+  "license": "MIT",
+  "sideEffects": false,
+  "type": "module",
+  "main": "./dist/index.js",
+  "imports": {
+    "#*": [
+      "./src/*.ts",
+      "./src/**/*.ts"
+    ]
+  },
+  "exports": {
+    ".": "./dist/index.js",
+    "./package.json": "./package.json",
+    "./schema": "./dist/schema.js"
+  },
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsdown --config-loader unrun",
+    "test": "vitest",
+    "lint:types": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@standard-schema/spec": "catalog:oxform",
+    "@tanstack/store": "^0.8.0",
+    "remeda": "^2.32.0",
+    "type-fest": "^5.3.1"
+  },
+  "devDependencies": {
+    "tsdown": "catalog:oxform",
+    "typescript": "catalog:oxform",
+    "vitest": "catalog:oxform",
+    "zod": "^4.2.1"
+  }
+}

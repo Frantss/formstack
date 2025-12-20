@@ -1,61 +1,42 @@
 {
-  "name": "tsdown-starter",
+  "name": "oxform-root",
   "version": "0.0.0",
-  "description": "A starter for creating a TypeScript package.",
-  "homepage": "https://github.com/author/library#readme",
-  "bugs": {
-    "url": "https://github.com/author/library/issues"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/author/library.git"
-  },
-  "author": "Author Name <author.name@mail.com>",
+  "private": true,
+  "description": "Oxform is a lean and flexible framework-agnostic form library.",
+  "author": "Frantss <frantss.bongiovanni@gmail.com>",
   "license": "MIT",
   "type": "module",
-  "main": "./dist/index.mjs",
-  "exports": {
-    ".": "./dist/index.mjs",
-    "./package.json": "./package.json"
+  "workspaces": {
+    "packages": [
+      "packages/*"
+    ],
+    "catalogs": {
+      "oxform": {
+        "@standard-schema/spec": "^1.1.0",
+        "typescript": "^5.9.3",
+        "vitest": "^4.0.16",
+        "@vitest/browser-playwright": "^4.0.16",
+        "playwright": "^1.57.0",
+        "tsdown": "^0.18.1"
+      }
+    }
   },
-  "module": "./dist/index.mjs",
-  "types": "./dist/index.d.mts",
-  "files": [
-    "dist"
-  ],
   "scripts": {
-    "build": "tsdown",
-    "dev": "tsdown --watch",
-    "test": "vitest",
-    "lint:types": "tsc --noEmit",
+    "build": "bun --filter '*' build",
+    "test": "bun --filter '*' test",
+    "lint:types": "bun --filter '*' lint:types",
     "lint:rules": "oxlint --type-aware",
     "lint:format": "oxfmt --check",
     "lint:fix": "oxlint --type-aware --fix --fix-suggestions --fix-dangerously && oxfmt"
   },
-  "dependencies": {
-    "@tanstack/react-store": "^0.8.0",
-    "@tanstack/store": "^0.8.0",
-    "react": "^19.2.3",
-    "react-dom": "^19.2.3",
-    "remeda": "^2.32.0",
-    "type-fest": "^5.3.1"
-  },
   "devDependencies": {
-    "@standard-schema/spec": "^1.1.0",
-    "@types/node": "^25.0.3",
-    "@types/react": "^19.2.7",
-    "@vitejs/plugin-react": "^5.1.2",
-    "@vitest/browser-playwright": "^4.0.16",
+    "@vitest/browser-playwright": "catalog:oxform",
     "bumpp": "^10.3.2",
     "oxfmt": "^0.18.0",
     "oxlint": "^1.33.0",
     "oxlint-tsgolint": "^0.9.1",
-    "playwright": "^1.57.0",
     "tsdown": "^0.18.1",
-    "typescript": "^5.9.3",
-    "vite-tsconfig-paths": "^6.0.3",
-    "vitest": "^4.0.16",
-    "vitest-browser-react": "^2.0.2",
-    "zod": "^4.2.1"
+    "typescript": "catalog:oxform",
+    "vitest": "catalog:oxform"
   }
 }

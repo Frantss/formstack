@@ -2,5 +2,9 @@ import { defineConfig } from 'tsdown';
 
 export default defineConfig({
   exports: true,
-  // ...config options
+  dts: true,
+  sourcemap: true,
+  minify: true,
+  clean: true,
+  platform: 'browser',
 });
