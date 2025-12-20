@@ -44,7 +44,7 @@ export class FieldApi<
   in out Value extends DeepValue<StandardSchema.InferInput<Schema>, Name>,
 > {
   public options: FieldOptions<Schema, Name>;
-  public form: FormApi<Schema>;
+  private form: FormApi<Schema>;
   public store: Derived<FieldStore<Value>>;
 
   constructor(options: FieldOptions<Schema, Name>) {
