@@ -7,18 +7,16 @@ import type { DeepKeys, DeepValue } from 'oxform-core';
 import type { StandardSchema } from 'oxform-core/schema';
 import { useCallback, useMemo } from 'react';
 
-export type FieldProps<Value> = {
-  defaultValue: Value;
-  value: Value;
-  ref: (element: HTMLElement | null) => void;
-  onChange: (event: EventLike) => void;
-  onBlur: (event: EventLike) => void;
-  onFocus: (event: EventLike) => void;
-};
-
 export type UseFieldReturn<Value> = Omit<FieldApi<any, any, Value>, '~mount' | '~update' | 'state'> & {
   state: FieldStore<Value>;
-  props: FieldProps<Value>;
+  props: {
+    defaultValue: Value;
+    value: Value;
+    ref: (element: HTMLElement | null) => void;
+    onChange: (event: EventLike) => void;
+    onBlur: (event: EventLike) => void;
+    onFocus: (event: EventLike) => void;
+  };
 };
 
 export const useField = <Schema extends StandardSchema, Name extends DeepKeys<StandardSchema.InferInput<Schema>>>(
@@ -63,7 +61,7 @@ export const useField = <Schema extends StandardSchema, Name extends DeepKeys<St
         onFocus: api.focus,
         onChange: useCallback((event: EventLike) => api.change(event.target?.value), []),
         ref: api.register,
-      }
+      },
     } satisfies UseFieldReturn<Value> as UseFieldReturn<Value>;
   }, [api, errors, value, defaultValue, dirty, touched, blurred, pristine, valid, isDefault]);
 };

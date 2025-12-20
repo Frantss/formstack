@@ -26,6 +26,7 @@ export const useArrayField = <
   });
 
   // todo: re-create api if form or name changes
+  // spike: use optional context to cache the api instance
 
   const length = useStore(api.store(), state => ((state.value as any[]) ?? []).length);
 

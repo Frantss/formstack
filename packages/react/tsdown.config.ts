@@ -5,6 +5,5 @@ export default defineConfig({
   ...base,
   entry: {
     index: 'export/index.ts',
-    store: 'export/store.ts',
   },
 });
