@@ -26,9 +26,7 @@
     "build": "tsdown --config-loader unrun",
     "test": "vitest",
     "check:types": "tsc --noEmit",
-    "check:package": "publint --strict",
-    "publish": "bun publish --access public",
-    "prepublish": "bun run build"
+    "check:package": "publint --strict && attw --pack --no-emoji"
   },
   "dependencies": {
     "@standard-schema/spec": "catalog:oxform",
@@ -37,6 +35,7 @@
     "type-fest": "^5.3.1"
   },
   "devDependencies": {
+    "@arethetypeswrong/cli": "^0.18.2",
     "publint": "catalog:oxform",
     "tsdown": "catalog:oxform",
     "typescript": "catalog:oxform",

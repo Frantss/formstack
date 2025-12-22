@@ -26,9 +26,7 @@
     "build": "tsdown --config-loader unrun",
     "test": "vitest",
     "check:types": "tsc --noEmit",
-    "check:package": "publint --strict",
-    "publish": "bun publish --access public",
-    "prepublish": "bun run build"
+    "check:package": "publint --strict && attw --pack --no-emoji"
   },
   "dependencies": {
     "@standard-schema/spec": "catalog:oxform",
@@ -36,6 +34,7 @@
     "oxform-core": "workspace:*"
   },
   "devDependencies": {
+    "@arethetypeswrong/cli": "^0.18.2",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^5.1.2",

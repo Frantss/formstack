@@ -32,11 +32,14 @@
     "check:types": "bun --filter '*' check:types",
     "check:rules": "oxlint --type-aware",
     "check:format": "oxfmt --check",
+    "check:all": "bun run check:rules && bun run check:format && bun run check:types && bun check:package",
     "fix:rules": "oxlint --type-aware --fix --fix-suggestions",
     "fix:format": "oxfmt",
     "fix:all": "bun run fix:rules && bun run fix:format",
-    "publish": "bun --filter '*' publish",
-    "prepublish": "bun run check:rules && bun run check:format && bun run check:types && bun check:package"
+    "version:add": "changeset add",
+    "version:bump": "changeset version",
+    "publish": "changeset publish",
+    "prepublish": "bun run build && bun run check:all"
   },
   "devDependencies": {
     "@changesets/cli": "^2.29.8",
