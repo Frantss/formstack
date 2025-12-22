@@ -1,6 +1,6 @@
 {
   "name": "oxform-react",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Oxform is a lean and flexible framework-agnostic form library.",
   "author": "Frantss <frantss.bongiovanni@gmail.com>",
   "license": "MIT",
