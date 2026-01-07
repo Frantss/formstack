@@ -1,4 +1,5 @@
 export { ArrayFieldApi, createArrayFieldApi } from '#array-field-api';
+export { createListener } from '#create-listener';
 export { createFieldApi, FieldApi } from '#field-api';
 export { FormApi } from '#form-api';
 

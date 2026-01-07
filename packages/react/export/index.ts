@@ -8,3 +8,4 @@ export type * from 'oxform-core';
 export { ArrayField, type ArrayFieldProps } from '../src/array-field';
 export { Field, type FieldProps } from '../src/field';
 export { Subscribe, type SubscribeProps } from '../src/subscribe';
+export { useListener } from '../src/use-listener';
