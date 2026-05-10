@@ -32,22 +32,17 @@ const setup = () => {
       }),
     },
   });
-  const unmount = core.store.mount();
-
   const fields = new FormCoreFields<Values>({ core });
   const field = new FormCoreField<Values>({ core, fields });
 
   return {
     core,
     field,
-    [Symbol.dispose]: () => {
-      unmount();
-    },
   };
 };
 
 it('validates using current values and updates descendant field errors', async () => {
-  using context = setup();
+  const context = setup();
 
   await context.core.validate('nested');
 
@@ -57,7 +52,7 @@ it('validates using current values and updates descendant field errors', async (
 });
 
 it('clears old errors for the validated subtree and keeps unrelated field errors', async () => {
-  using context = setup();
+  const context = setup();
 
   context.field.setErrors('nested.value', [
     {
@@ -76,7 +71,7 @@ it('clears old errors for the validated subtree and keeps unrelated field errors
 });
 
 it('uses the event validator when a validation type is provided', async () => {
-  using context = setup();
+  const context = setup();
 
   const [, baseIssues] = await context.core.validate('name');
   const [, changeIssues] = await context.core.validate('name', {

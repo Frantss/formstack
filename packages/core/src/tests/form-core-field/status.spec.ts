@@ -3,7 +3,7 @@ import { expect, it } from 'vitest';
 import { setup } from '#tests/form-core-field/setup';
 
 it('returns untouched by default', () => {
-  using context = setup();
+  const context = setup();
 
   const status = context.field.status('name');
 
@@ -11,7 +11,7 @@ it('returns untouched by default', () => {
 });
 
 it('returns dirty as false by default', () => {
-  using context = setup();
+  const context = setup();
 
   const status = context.field.status('name');
 
@@ -19,7 +19,7 @@ it('returns dirty as false by default', () => {
 });
 
 it('returns touched as true after focus', () => {
-  using context = setup();
+  const context = setup();
 
   context.field.focus('name');
   const status = context.field.status('name');
@@ -28,7 +28,7 @@ it('returns touched as true after focus', () => {
 });
 
 it('returns blurred as true after blur', () => {
-  using context = setup();
+  const context = setup();
 
   context.field.blur('name');
   const status = context.field.status('name');

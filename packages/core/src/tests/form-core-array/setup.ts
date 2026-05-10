@@ -21,7 +21,6 @@ export const setup = () => {
     schema,
     defaultValues,
   });
-  const unmount = core.store.mount();
 
   const fields = new FormCoreFields<Values>({ core });
   const field = new FormCoreField<Values>({ core, fields });
@@ -32,8 +31,5 @@ export const setup = () => {
     fields,
     field,
     array,
-    [Symbol.dispose]: () => {
-      unmount();
-    },
   };
 };

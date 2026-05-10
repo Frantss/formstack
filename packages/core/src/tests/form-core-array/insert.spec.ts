@@ -3,7 +3,7 @@ import { expect, it } from 'vitest';
 import { setup } from '#tests/form-core-array/setup';
 
 it('inserts a value at the provided index', () => {
-  using context = setup();
+  const context = setup();
 
   context.array.insert('array', 1, 'item1.5');
   const value = context.field.get('array');
@@ -12,7 +12,7 @@ it('inserts a value at the provided index', () => {
 });
 
 it('inserts at index 0 when index is negative', () => {
-  using context = setup();
+  const context = setup();
 
   context.array.insert('array', -2, 'start');
   const value = context.field.get('array');
@@ -21,7 +21,7 @@ it('inserts at index 0 when index is negative', () => {
 });
 
 it('pads with undefined entries when inserting beyond length', () => {
-  using context = setup();
+  const context = setup();
 
   context.array.insert('array', 4, 'item5');
   const value = context.field.get('array');
@@ -30,7 +30,7 @@ it('pads with undefined entries when inserting beyond length', () => {
 });
 
 it('marks the array field as dirty by default', () => {
-  using context = setup();
+  const context = setup();
 
   context.array.insert('array', 1, 'item1.5');
   const status = context.field.status('array');
@@ -39,7 +39,7 @@ it('marks the array field as dirty by default', () => {
 });
 
 it('marks the array field as touched by default', () => {
-  using context = setup();
+  const context = setup();
 
   context.array.insert('array', 1, 'item1.5');
   const status = context.field.status('array');
@@ -48,7 +48,7 @@ it('marks the array field as touched by default', () => {
 });
 
 it('does not mark the array field as dirty when should.dirty is false', () => {
-  using context = setup();
+  const context = setup();
 
   context.array.insert('array', 1, 'item1.5', { should: { dirty: false } });
   const status = context.field.status('array');
@@ -57,7 +57,7 @@ it('does not mark the array field as dirty when should.dirty is false', () => {
 });
 
 it('does not mark the array field as touched when should.touch is false', () => {
-  using context = setup();
+  const context = setup();
 
   context.array.insert('array', 1, 'item1.5', { should: { touch: false } });
   const status = context.field.status('array');
@@ -66,7 +66,7 @@ it('does not mark the array field as touched when should.touch is false', () => 
 });
 
 it('creates a field entry for the inserted index', () => {
-  using context = setup();
+  const context = setup();
 
   context.array.insert('array', 1, 'item1.5');
   const entry = context.fields.get('array.1');
@@ -80,7 +80,7 @@ it('creates a field entry for the inserted index', () => {
 });
 
 it('shifts existing field entries to the right from insertion index', () => {
-  using context = setup();
+  const context = setup();
   const previous = context.fields.get('array.1');
   const previousId = previous.id;
 
@@ -92,7 +92,7 @@ it('shifts existing field entries to the right from insertion index', () => {
 });
 
 it('moves all index entries correctly when inserting in the middle', () => {
-  using context = setup();
+  const context = setup();
   const before0 = context.fields.get('array.0').id;
   const before1 = context.fields.get('array.1').id;
 

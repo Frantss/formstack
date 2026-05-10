@@ -10,30 +10,27 @@ import type { FormSetErrorsOptions } from '#types/api/form-set-errors-options';
 import type { FormStore } from '#types/api/form-store';
 import { fields_pathWithRoot } from '#utils/fields';
 import { get } from '#utils/get';
-import { Derived } from '@tanstack/store';
+import { createStore, type ReadonlyStore } from '@tanstack/store';
 import { stringToPath } from 'remeda';
 
 export class FieldApi<Value> {
   public options: FieldOptions<any, any>;
-  public store: Derived<FieldStore<Value>>;
+  public store: ReadonlyStore<FieldStore<Value>>;
 
   constructor(options: FieldOptions<any, any>) {
     this.options = options;
-    this.store = new Derived<FieldStore<Value>>({
-      deps: [this.options.form.store],
-      fn: ({ currDepVals }) => {
-        const form = currDepVals[0]! as FormStore<any>;
-        const state = form.fields[fields_pathWithRoot(this.options.name) as never];
-        const path = stringToPath(this.options.name as never);
-        const value = get(form.values as never, path as never) as Value;
-        const defaultValue = get(this.options.form.options.defaultValues as never, path as never) as Value;
+    this.store = createStore<FieldStore<Value>>(() => {
+      const form = this.options.form.store.state as FormStore<any>;
+      const state = form.fields[fields_pathWithRoot(this.options.name) as never];
+      const path = stringToPath(this.options.name as never);
+      const value = get(form.values as never, path as never) as Value;
+      const defaultValue = get(this.options.form.options.defaultValues as never, path as never) as Value;
 
-        return {
-          ...state,
-          value,
-          defaultValue,
-        };
-      },
+      return {
+        ...state,
+        value,
+        defaultValue,
+      };
     });
   }
 
@@ -50,7 +47,7 @@ export class FieldApi<Value> {
   }
 
   public '~mount' = () => {
-    return this.store.mount();
+    return () => {};
   };
 
   public '~update' = (options: FieldOptions<any, any>) => {

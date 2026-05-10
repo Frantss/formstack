@@ -4,7 +4,7 @@ import z from 'zod';
 import { setup } from '#tests/form-core-field/setup';
 
 it('updates a field value with a direct value', () => {
-  using context = setup();
+  const context = setup();
 
   context.field.change('name', 'updated');
   const value = context.field.get('name');
@@ -13,7 +13,7 @@ it('updates a field value with a direct value', () => {
 });
 
 it('updates a field value with an updater function', () => {
-  using context = setup();
+  const context = setup();
 
   context.field.change('name', current => `${current} updated`);
   const value = context.field.get('name');
@@ -22,7 +22,7 @@ it('updates a field value with an updater function', () => {
 });
 
 it('updates a nested field value', () => {
-  using context = setup();
+  const context = setup();
 
   context.field.change('nested.value', 'updated nested');
   const value = context.field.get('nested.value');
@@ -31,7 +31,7 @@ it('updates a nested field value', () => {
 });
 
 it('marks the field as dirty by default', () => {
-  using context = setup();
+  const context = setup();
 
   context.field.change('name', 'updated');
   const status = context.field.status('name');
@@ -40,7 +40,7 @@ it('marks the field as dirty by default', () => {
 });
 
 it('marks the field as touched by default', () => {
-  using context = setup();
+  const context = setup();
 
   context.field.change('name', 'updated');
   const status = context.field.status('name');
@@ -49,7 +49,7 @@ it('marks the field as touched by default', () => {
 });
 
 it('does not mark the field as dirty when should.dirty is false', () => {
-  using context = setup();
+  const context = setup();
 
   context.field.change('name', 'updated', { should: { dirty: false } });
   const status = context.field.status('name');
@@ -58,7 +58,7 @@ it('does not mark the field as dirty when should.dirty is false', () => {
 });
 
 it('does not mark the field as touched when should.touch is false', () => {
-  using context = setup();
+  const context = setup();
 
   context.field.change('name', 'updated', { should: { touch: false } });
   const status = context.field.status('name');
@@ -67,7 +67,7 @@ it('does not mark the field as touched when should.touch is false', () => {
 });
 
 it('marks an ascendant field as dirty when changing a nested field', () => {
-  using context = setup();
+  const context = setup();
 
   context.field.change('nested.value', 'updated nested');
   const status = context.field.status('nested');
@@ -76,7 +76,7 @@ it('marks an ascendant field as dirty when changing a nested field', () => {
 });
 
 it('marks an ascendant field as touched when changing a nested field', () => {
-  using context = setup();
+  const context = setup();
 
   context.field.change('nested.value', 'updated nested');
   const status = context.field.status('nested');
@@ -85,7 +85,7 @@ it('marks an ascendant field as touched when changing a nested field', () => {
 });
 
 it('does not mark a descendant field as dirty when changing its parent field', () => {
-  using context = setup();
+  const context = setup();
 
   context.field.change('nested', { value: 'updated nested parent' });
   const status = context.field.status('nested.value');
@@ -94,7 +94,7 @@ it('does not mark a descendant field as dirty when changing its parent field', (
 });
 
 it('does not mark a descendant field as touched when changing its parent field', () => {
-  using context = setup();
+  const context = setup();
 
   context.field.change('nested', { value: 'updated nested parent' });
   const status = context.field.status('nested.value');
@@ -103,7 +103,7 @@ it('does not mark a descendant field as touched when changing its parent field',
 });
 
 it('does not validate by default when changing a field', () => {
-  using context = setup();
+  const context = setup();
   const validate = vi.spyOn(context.core, 'validate').mockResolvedValue([true, []]);
 
   context.field.change('name', 'updated');
@@ -112,7 +112,7 @@ it('does not validate by default when changing a field', () => {
 });
 
 it('validates by default when changing a field and a change validator is configured', () => {
-  using context = setup({
+  const context = setup({
     validate: {
       change: z.object({
         name: z.string(),
@@ -128,7 +128,7 @@ it('validates by default when changing a field and a change validator is configu
 });
 
 it('skips validation when should.validate is false', () => {
-  using context = setup({
+  const context = setup({
     validate: {
       change: z.object({
         name: z.string(),
@@ -143,7 +143,7 @@ it('skips validation when should.validate is false', () => {
 });
 
 it('batches value and status updates into a single store notification', () => {
-  using context = setup();
+  const context = setup();
   const listener = vi.fn();
 
   context.core.persisted.subscribe(listener);

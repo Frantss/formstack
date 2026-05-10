@@ -10,7 +10,7 @@ const issue: FormIssue = {
 } as never;
 
 it('resets a field value to its default value', () => {
-  using context = setup();
+  const context = setup();
 
   context.field.change('name', 'updated');
   context.field.reset('name');
@@ -20,7 +20,7 @@ it('resets a field value to its default value', () => {
 });
 
 it('resets a nested field value to its default value', () => {
-  using context = setup();
+  const context = setup();
 
   context.field.change('nested.value', 'updated nested');
   context.field.reset('nested.value');
@@ -30,7 +30,7 @@ it('resets a nested field value to its default value', () => {
 });
 
 it('resets a field value to the provided reset value', () => {
-  using context = setup();
+  const context = setup();
 
   context.field.change('name', 'updated');
   context.field.reset('name', { value: 'custom reset' });
@@ -40,7 +40,7 @@ it('resets a field value to the provided reset value', () => {
 });
 
 it('sets dirty to false after reset', () => {
-  using context = setup();
+  const context = setup();
 
   context.field.change('name', 'updated');
   context.field.reset('name');
@@ -50,7 +50,7 @@ it('sets dirty to false after reset', () => {
 });
 
 it('sets touched to false after reset', () => {
-  using context = setup();
+  const context = setup();
 
   context.field.focus('name');
   context.field.reset('name');
@@ -60,7 +60,7 @@ it('sets touched to false after reset', () => {
 });
 
 it('sets blurred to false after reset', () => {
-  using context = setup();
+  const context = setup();
 
   context.field.blur('name');
   context.field.reset('name');
@@ -70,7 +70,7 @@ it('sets blurred to false after reset', () => {
 });
 
 it('resets field status using wildcard and per-field defaults', () => {
-  using context = setup({
+  const context = setup({
     defaultFieldStatus: {
       '*': { touched: true },
       name: { dirty: true },
@@ -90,7 +90,7 @@ it('resets field status using wildcard and per-field defaults', () => {
 });
 
 it('clears field errors after reset', () => {
-  using context = setup();
+  const context = setup();
 
   context.field.setErrors('name', [issue]);
   context.field.reset('name');
@@ -100,7 +100,7 @@ it('clears field errors after reset', () => {
 });
 
 it('keeps sibling field value unchanged when resetting a different field', () => {
-  using context = setup();
+  const context = setup();
 
   context.field.change('count', 2);
   context.field.change('name', 'updated');

@@ -10,7 +10,7 @@ const issue: FormIssue = {
 } as never;
 
 it('resets target field status to defaults', () => {
-  using context = setup();
+  const context = setup();
 
   context.fields.set('nested.value', {
     status: { dirty: true, touched: true, blurred: true },
@@ -22,7 +22,7 @@ it('resets target field status to defaults', () => {
 });
 
 it('resets target field status using wildcard and field-specific defaults', () => {
-  using context = setup({
+  const context = setup({
     defaultFieldStatus: {
       '*': { touched: true },
       'nested.value': { dirty: true },
@@ -39,7 +39,7 @@ it('resets target field status using wildcard and field-specific defaults', () =
 });
 
 it('clears target field errors', () => {
-  using context = setup();
+  const context = setup();
 
   context.fields.set('nested.value', { errors: [issue] });
   context.fields.reset('nested.value');
@@ -49,7 +49,7 @@ it('clears target field errors', () => {
 });
 
 it('clears target field ref', () => {
-  using context = setup();
+  const context = setup();
   const element = {} as HTMLElement;
 
   context.fields.set('nested.value', { ref: element });
@@ -60,7 +60,7 @@ it('clears target field ref', () => {
 });
 
 it('resets descendant field when resetting a parent path', () => {
-  using context = setup();
+  const context = setup();
   const element = {} as HTMLElement;
 
   context.fields.set('nested.value', {
@@ -80,7 +80,7 @@ it('resets descendant field when resetting a parent path', () => {
 });
 
 it('keeps sibling field state unchanged when resetting another path', () => {
-  using context = setup();
+  const context = setup();
   const element = {} as HTMLElement;
 
   context.fields.set('name', {
@@ -96,7 +96,7 @@ it('keeps sibling field state unchanged when resetting another path', () => {
 });
 
 it('does not affect ascendant field state when resetting a descendant path', () => {
-  using context = setup();
+  const context = setup();
   const element = {} as HTMLElement;
 
   context.fields.set('nested', {

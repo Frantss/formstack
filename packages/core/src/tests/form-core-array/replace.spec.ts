@@ -3,7 +3,7 @@ import { expect, it } from 'vitest';
 import { setup } from '#tests/form-core-array/setup';
 
 it('replaces array values with provided array', () => {
-  using context = setup();
+  const context = setup();
 
   context.array.replace('array', ['new1', 'new2', 'new3']);
   const value = context.field.get('array');
@@ -12,7 +12,7 @@ it('replaces array values with provided array', () => {
 });
 
 it('replaces array values with updater function', () => {
-  using context = setup();
+  const context = setup();
 
   context.array.replace('array', current => [...current, 'item3']);
   const value = context.field.get('array');
@@ -21,7 +21,7 @@ it('replaces array values with updater function', () => {
 });
 
 it('marks the array field as dirty by default', () => {
-  using context = setup();
+  const context = setup();
 
   context.array.replace('array', ['new1']);
   const status = context.field.status('array');
@@ -30,7 +30,7 @@ it('marks the array field as dirty by default', () => {
 });
 
 it('marks the array field as touched by default', () => {
-  using context = setup();
+  const context = setup();
 
   context.array.replace('array', ['new1']);
   const status = context.field.status('array');
@@ -39,7 +39,7 @@ it('marks the array field as touched by default', () => {
 });
 
 it('does not mark the array field as dirty when should.dirty is false', () => {
-  using context = setup();
+  const context = setup();
 
   context.array.replace('array', ['new1'], { should: { dirty: false } });
   const status = context.field.status('array');
@@ -48,7 +48,7 @@ it('does not mark the array field as dirty when should.dirty is false', () => {
 });
 
 it('does not mark the array field as touched when should.touch is false', () => {
-  using context = setup();
+  const context = setup();
 
   context.array.replace('array', ['new1'], { should: { touch: false } });
   const status = context.field.status('array');
@@ -57,7 +57,7 @@ it('does not mark the array field as touched when should.touch is false', () => 
 });
 
 it('creates field entries for all replaced indices', () => {
-  using context = setup();
+  const context = setup();
 
   context.array.replace('array', ['new1', 'new2', 'new3']);
   const entry = context.fields.get('array.2');
@@ -71,7 +71,7 @@ it('creates field entries for all replaced indices', () => {
 });
 
 it('removes field entries beyond new length', () => {
-  using context = setup();
+  const context = setup();
 
   context.array.replace('array', ['new1']);
   const entry = context.fields.get('array.1');
@@ -80,7 +80,7 @@ it('removes field entries beyond new length', () => {
 });
 
 it('keeps sibling values unchanged', () => {
-  using context = setup();
+  const context = setup();
 
   context.array.replace('array', ['new1']);
   const value = context.field.get('sibling');

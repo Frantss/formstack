@@ -3,7 +3,7 @@ import { expect, it } from 'vitest';
 import { setup } from '#tests/form-core-field/setup';
 
 it('returns the default value of a field', () => {
-  using context = setup();
+  const context = setup();
 
   const value = context.field.get('name');
 
@@ -11,7 +11,7 @@ it('returns the default value of a field', () => {
 });
 
 it('returns the default value of a nested field', () => {
-  using context = setup();
+  const context = setup();
 
   const value = context.field.get('nested.value');
 
@@ -19,7 +19,7 @@ it('returns the default value of a nested field', () => {
 });
 
 it('returns the updated value after change', () => {
-  using context = setup();
+  const context = setup();
 
   context.field.change('name', 'updated');
   const value = context.field.get('name');

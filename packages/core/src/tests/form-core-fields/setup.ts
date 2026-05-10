@@ -37,6 +37,5 @@ export const setup = (options?: {
   return {
     core,
     fields,
-    [Symbol.dispose]: () => {},
   };
 };

@@ -16,8 +16,6 @@ const setup = () => {
     schema,
     defaultValues,
   });
-  const unmount = form['~mount']();
-
   const array = createArrayField({
     form,
     name: 'tags',
@@ -26,14 +24,11 @@ const setup = () => {
   return {
     form,
     array,
-    [Symbol.dispose]: () => {
-      unmount();
-    },
   };
 };
 
 it('appends and prepends values', () => {
-  using context = setup();
+  const context = setup();
 
   context.array.append('b');
   context.array.prepend('z');
@@ -43,7 +38,7 @@ it('appends and prepends values', () => {
 });
 
 it('appends and prepends values from updater functions', () => {
-  using context = setup();
+  const context = setup();
 
   context.array.append(() => 'b');
   context.array.prepend(() => 'z');
@@ -53,7 +48,7 @@ it('appends and prepends values from updater functions', () => {
 });
 
 it('inserts and removes values', () => {
-  using context = setup();
+  const context = setup();
 
   context.array.insert(1, 'b');
   context.array.remove(0);
@@ -62,7 +57,7 @@ it('inserts and removes values', () => {
 });
 
 it('replaces and updates values', () => {
-  using context = setup();
+  const context = setup();
 
   context.array.replace(['x', 'y']);
   context.array.update(1, 'z');
@@ -71,7 +66,7 @@ it('replaces and updates values', () => {
 });
 
 it('exposes array state through store/state', () => {
-  using context = setup();
+  const context = setup();
 
   expect(context.array.state.value).toEqual(['a']);
   expect(context.array.state.defaultValue).toEqual(['a']);

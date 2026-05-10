@@ -3,7 +3,7 @@ import { expect, it } from 'vitest';
 import { setup } from '#tests/form-core-array/setup';
 
 it('swaps two items in the array', () => {
-  using context = setup();
+  const context = setup();
 
   context.array.swap('array', 0, 1);
   const value = context.field.get('array');
@@ -12,7 +12,7 @@ it('swaps two items in the array', () => {
 });
 
 it('normalizes negative indices to zero', () => {
-  using context = setup();
+  const context = setup();
 
   context.array.swap('array', -100, 1);
   const value = context.field.get('array');
@@ -21,7 +21,7 @@ it('normalizes negative indices to zero', () => {
 });
 
 it('keeps values unchanged when swapping the same index', () => {
-  using context = setup();
+  const context = setup();
 
   context.array.swap('array', 0, 0);
   const value = context.field.get('array');
@@ -30,7 +30,7 @@ it('keeps values unchanged when swapping the same index', () => {
 });
 
 it('marks the array field as dirty by default', () => {
-  using context = setup();
+  const context = setup();
 
   context.array.swap('array', 0, 1);
   const status = context.field.status('array');
@@ -39,7 +39,7 @@ it('marks the array field as dirty by default', () => {
 });
 
 it('marks the array field as touched by default', () => {
-  using context = setup();
+  const context = setup();
 
   context.array.swap('array', 0, 1);
   const status = context.field.status('array');
@@ -48,7 +48,7 @@ it('marks the array field as touched by default', () => {
 });
 
 it('does not mark the array field as dirty when should.dirty is false', () => {
-  using context = setup();
+  const context = setup();
 
   context.array.swap('array', 0, 1, { should: { dirty: false } });
   const status = context.field.status('array');
@@ -57,7 +57,7 @@ it('does not mark the array field as dirty when should.dirty is false', () => {
 });
 
 it('does not mark the array field as touched when should.touch is false', () => {
-  using context = setup();
+  const context = setup();
 
   context.array.swap('array', 0, 1, { should: { touch: false } });
   const status = context.field.status('array');
@@ -66,7 +66,7 @@ it('does not mark the array field as touched when should.touch is false', () => 
 });
 
 it('moves index 0 field entry id to index 1', () => {
-  using context = setup();
+  const context = setup();
   const beforeId = context.fields.get('array.0').id;
 
   context.array.swap('array', 0, 1);
@@ -76,7 +76,7 @@ it('moves index 0 field entry id to index 1', () => {
 });
 
 it('moves index 1 field entry id to index 0', () => {
-  using context = setup();
+  const context = setup();
   const beforeId = context.fields.get('array.1').id;
 
   context.array.swap('array', 0, 1);
@@ -86,7 +86,7 @@ it('moves index 1 field entry id to index 0', () => {
 });
 
 it('keeps sibling values unchanged', () => {
-  using context = setup();
+  const context = setup();
 
   context.array.swap('array', 0, 1);
   const value = context.field.get('sibling');

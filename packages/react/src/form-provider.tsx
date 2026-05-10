@@ -10,7 +10,7 @@ export function FormProvider({ form, children }: { form: AnyFormApi; children: R
   return <FormContext.Provider value={value}>{children}</FormContext.Provider>;
 }
 
-export const useFormContext = <Values = unknown>({ id }: { id?: string } | FormOptions<Values> = {}) => {
+export const useFormContext = <Values = unknown,>({ id }: { id?: string } | FormOptions<Values> = {}) => {
   const context = useContext(FormContext);
 
   if (!context) throw new Error('Missing <FormProvider />');

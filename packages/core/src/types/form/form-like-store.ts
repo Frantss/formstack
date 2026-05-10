@@ -1,3 +1,3 @@
-import type { Derived, Store } from '@tanstack/store';
+import type { ReadonlyStore, Store } from '@tanstack/store';
 
-export type FormLikeStore<State = any> = Store<State> | Derived<State>;
+export type FormLikeStore<State = any> = Store<State> | ReadonlyStore<State>;

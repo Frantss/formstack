@@ -16,7 +16,7 @@ const issueB: FormIssue = {
 } as never;
 
 it('replaces errors by default', () => {
-  using context = setup();
+  const context = setup();
 
   context.field.setErrors('name', [issueA]);
   context.field.setErrors('name', [issueB]);
@@ -26,7 +26,7 @@ it('replaces errors by default', () => {
 });
 
 it('appends errors in append mode', () => {
-  using context = setup();
+  const context = setup();
 
   context.field.setErrors('name', [issueA]);
   context.field.setErrors('name', [issueB], { mode: 'append' });
@@ -36,7 +36,7 @@ it('appends errors in append mode', () => {
 });
 
 it('keeps existing errors in keep mode when present', () => {
-  using context = setup();
+  const context = setup();
 
   context.field.setErrors('name', [issueA]);
   context.field.setErrors('name', [issueB], { mode: 'keep' });
@@ -46,7 +46,7 @@ it('keeps existing errors in keep mode when present', () => {
 });
 
 it('sets errors in keep mode when no existing errors are present', () => {
-  using context = setup();
+  const context = setup();
 
   context.field.setErrors('name', [issueB], { mode: 'keep' });
   const errors = context.field.errors('name');
@@ -55,7 +55,7 @@ it('sets errors in keep mode when no existing errors are present', () => {
 });
 
 it('updates form validity to invalid when errors are set', () => {
-  using context = setup();
+  const context = setup();
 
   context.field.setErrors('name', [issueA]);
   const valid = context.core.store.state.status.valid;
@@ -64,7 +64,7 @@ it('updates form validity to invalid when errors are set', () => {
 });
 
 it('updates form validity to valid when errors are cleared', () => {
-  using context = setup();
+  const context = setup();
 
   context.field.setErrors('name', [issueA]);
   context.field.setErrors('name', []);

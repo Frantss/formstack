@@ -22,8 +22,6 @@ const setup = () => {
     schema,
     defaultValues,
   });
-  const unmount = form['~mount']();
-
   const field = createField({
     form,
     name: 'name',
@@ -32,14 +30,11 @@ const setup = () => {
   return {
     form,
     field,
-    [Symbol.dispose]: () => {
-      unmount();
-    },
   };
 };
 
 it('gets and changes the field value', () => {
-  using context = setup();
+  const context = setup();
 
   context.field.change('updated');
 
@@ -48,7 +43,7 @@ it('gets and changes the field value', () => {
 });
 
 it('forwards focus and blur behavior to the underlying field', () => {
-  using context = setup();
+  const context = setup();
 
   context.field.focus();
   expect(context.form.field.status('name').touched).toBe(true);
@@ -58,7 +53,7 @@ it('forwards focus and blur behavior to the underlying field', () => {
 });
 
 it('forwards errors and reset operations', () => {
-  using context = setup();
+  const context = setup();
 
   context.field.setErrors([{ code: 'custom', message: 'issue', path: ['name'] } as never]);
   expect(context.field.errors()).toHaveLength(1);

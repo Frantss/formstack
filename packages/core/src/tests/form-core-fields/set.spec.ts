@@ -10,7 +10,7 @@ const issue: FormIssue = {
 } as never;
 
 it('updates target entry status', () => {
-  using context = setup();
+  const context = setup();
   const expected = context.fields.get('name');
 
   context.fields.set('name', { status: { dirty: true } });
@@ -23,7 +23,7 @@ it('updates target entry status', () => {
 });
 
 it('updates target entry errors', () => {
-  using context = setup();
+  const context = setup();
 
   context.fields.set('name', { errors: [issue] });
   const entry = context.fields.get('name');
@@ -32,7 +32,7 @@ it('updates target entry errors', () => {
 });
 
 it('updates target entry ref', () => {
-  using context = setup();
+  const context = setup();
   const element = {} as HTMLElement;
 
   context.fields.set('name', { ref: element });
@@ -42,7 +42,7 @@ it('updates target entry ref', () => {
 });
 
 it('updates ascendant entry when setting a descendant path', () => {
-  using context = setup();
+  const context = setup();
   const expected = context.fields.get('nested');
 
   context.fields.set('nested.value', { status: { touched: true } });
@@ -55,7 +55,7 @@ it('updates ascendant entry when setting a descendant path', () => {
 });
 
 it('does not propagate errors to ascendant entries when setting a descendant path', () => {
-  using context = setup();
+  const context = setup();
   const expected = context.fields.get('nested');
 
   context.fields.set('nested.value', {
@@ -71,7 +71,7 @@ it('does not propagate errors to ascendant entries when setting a descendant pat
 });
 
 it('does not propagate refs to ascendant entries when setting a descendant path', () => {
-  using context = setup();
+  const context = setup();
   const expected = context.fields.get('nested');
   const element = {} as HTMLElement;
 
@@ -85,7 +85,7 @@ it('does not propagate refs to ascendant entries when setting a descendant path'
 });
 
 it('does not update descendant entry when setting a parent path', () => {
-  using context = setup();
+  const context = setup();
   const expected = context.fields.get('nested.value');
 
   context.fields.set('nested', {
@@ -97,7 +97,7 @@ it('does not update descendant entry when setting a parent path', () => {
 });
 
 it('does not update sibling entries', () => {
-  using context = setup();
+  const context = setup();
   const expected = context.fields.get('name');
 
   context.fields.set('nested.value', { status: { touched: true } });

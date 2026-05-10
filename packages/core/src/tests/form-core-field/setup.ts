@@ -34,7 +34,6 @@ export const setup = (options?: {
     defaultStatus: options?.defaultStatus,
     defaultFieldStatus: options?.defaultFieldStatus,
   });
-  const unmount = core.store.mount();
 
   const fields = new FormCoreFields<Values>({ core });
   const field = new FormCoreField<Values>({ core, fields });
@@ -43,8 +42,5 @@ export const setup = (options?: {
     core,
     fields,
     field,
-    [Symbol.dispose]: () => {
-      unmount();
-    },
   };
 };

@@ -51,7 +51,7 @@ export class FormApi<Values> {
   }
 
   public '~mount' = () => {
-    return this.core.store.mount();
+    return () => {};
   };
 
   public '~update' = (options: FormOptions<Values>) => {

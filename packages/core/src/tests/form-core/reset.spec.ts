@@ -31,21 +31,17 @@ const setup = (options?: {
     defaultStatus: options?.defaultStatus,
     defaultFieldStatus: options?.defaultFieldStatus,
   });
-  const unmount = core.store.mount();
   const fields = new FormCoreFields<Values>({ core });
   const field = new FormCoreField<Values>({ core, fields });
 
   return {
     core,
     field,
-    [Symbol.dispose]: () => {
-      unmount();
-    },
   };
 };
 
 it('initializes and resets status with configured defaults', () => {
-  using context = setup({
+  const context = setup({
     defaultStatus: {
       dirty: true,
       submitting: true,
@@ -81,7 +77,7 @@ it('initializes and resets status with configured defaults', () => {
 });
 
 it('resets field status using wildcard and field-specific defaults', () => {
-  using context = setup({
+  const context = setup({
     defaultFieldStatus: {
       '*': { touched: true },
       name: { dirty: true },
@@ -108,7 +104,7 @@ it('resets field status using wildcard and field-specific defaults', () => {
 });
 
 it('resets values, fields, and status by default', () => {
-  using context = setup();
+  const context = setup();
   const element = document.createElement('input');
 
   context.field.change('name', 'changed');
@@ -140,7 +136,7 @@ it('resets values, fields, and status by default', () => {
 });
 
 it('resets to custom values and status', () => {
-  using context = setup();
+  const context = setup();
 
   context.core.reset({
     values: {
@@ -167,7 +163,7 @@ it('resets to custom values and status', () => {
 });
 
 it('keeps fields when keep.fields is true', () => {
-  using context = setup();
+  const context = setup();
   const element = document.createElement('input');
 
   context.field.change('name', 'changed');
@@ -183,7 +179,7 @@ it('keeps fields when keep.fields is true', () => {
 });
 
 it('keeps refs and errors when requested without keep.fields', () => {
-  using context = setup();
+  const context = setup();
   const element = document.createElement('input');
 
   context.field.change('name', 'changed');

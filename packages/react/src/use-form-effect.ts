@@ -16,7 +16,9 @@ export const useFormEffect = <Api extends AnyFormLikeApi, Selected>(
   const [effect, setEffect] = useState(() => createEffect(api, selectorRef.current, fnRef.current));
 
   useIsomorphicLayoutEffect(() => {
-    return effect.mount();
+    return () => {
+      effect.unsubscribe();
+    };
   }, [effect]);
 
   useIsomorphicLayoutEffect(() => {

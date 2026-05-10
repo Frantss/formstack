@@ -10,18 +10,18 @@ import { fields_build, fields_pathWithRoot, fields_root } from '#utils/fields';
 import { get } from '#utils/get';
 import { update } from '#utils/update';
 import type { Updater } from '#utils/update/updater-';
-import { Derived, Store } from '@tanstack/store';
+import { createStore, type ReadonlyStore, type Store } from '@tanstack/store';
 import { entries, fromEntries, isDeepEqual, isFunction, map, pipe, setPath, stringToPath } from 'remeda';
 
 export class FormCore<Values> {
   public options!: FormOptions<Values>;
   public persisted: Store<FormBaseStore<Values>>;
-  public store!: Derived<FormStore<Values>>;
+  public store!: ReadonlyStore<FormStore<Values>>;
 
   constructor(options: FormOptions<Values>) {
     this.options = options;
 
-    this.persisted = new Store<FormBaseStore<Values>>({
+    this.persisted = createStore<FormBaseStore<Values>>({
       values: options.defaultValues,
       fields: fields_build(options),
       status: {
@@ -30,51 +30,48 @@ export class FormCore<Values> {
       },
     });
 
-    this.store = new Derived<FormStore<Values>>({
-      deps: [this.persisted],
-      fn: ({ currDepVals }) => {
-        const persisted = currDepVals[0] as FormBaseStore<Values>;
+    this.store = createStore<FormStore<Values>>(() => {
+      const persisted = this.persisted.state;
 
-        const root = persisted.fields[fields_root];
-        const invalid = Object.values(persisted.fields).some(field => field.errors.length > 0);
-        const fields = pipe(
-          persisted.fields,
-          entries(),
-          map(([key, field]) => {
-            const path = key === fields_root ? [] : stringToPath(key.slice(fields_root.length + 1));
-            const value = get(persisted.values as never, path);
-            const defaultValue = get(this.options.defaultValues, path);
+      const root = persisted.fields[fields_root];
+      const invalid = Object.values(persisted.fields).some(field => field.errors.length > 0);
+      const fields = pipe(
+        persisted.fields,
+        entries(),
+        map(([key, field]) => {
+          const path = key === fields_root ? [] : stringToPath(key.slice(fields_root.length + 1));
+          const value = get(persisted.values as never, path);
+          const defaultValue = get(this.options.defaultValues, path);
 
-            return [
-              key,
-              {
-                ...field,
-                status: {
-                  ...field.status,
-                  default: isDeepEqual(value, defaultValue),
-                  valid: field.errors.length === 0,
-                  pristine: !field.status.dirty,
-                },
+          return [
+            key,
+            {
+              ...field,
+              status: {
+                ...field.status,
+                default: isDeepEqual(value, defaultValue),
+                valid: field.errors.length === 0,
+                pristine: !field.status.dirty,
               },
-            ] as const;
-          }),
-          fromEntries(),
-        ) as never;
+            },
+          ] as const;
+        }),
+        fromEntries(),
+      ) as never;
 
-        return {
-          values: persisted.values,
-          fields,
-          status: {
-            ...persisted.status,
-            submitted: persisted.status.submits > 0,
-            valid: !invalid,
-            dirty: persisted.status.dirty || root.status.dirty,
-            blurred: root.status.blurred,
-            touched: root.status.touched,
-            pristine: !root.status.dirty,
-          },
-        };
-      },
+      return {
+        values: persisted.values,
+        fields,
+        status: {
+          ...persisted.status,
+          submitted: persisted.status.submits > 0,
+          valid: !invalid,
+          dirty: persisted.status.dirty || root.status.dirty,
+          blurred: root.status.blurred,
+          touched: root.status.touched,
+          pristine: !root.status.dirty,
+        },
+      };
     });
   }
 

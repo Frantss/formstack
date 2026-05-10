@@ -35,18 +35,13 @@ const setup = () => {
     schema,
     defaultValues,
   });
-  const unmount = form.store.mount();
-
   return {
     form,
-    [Symbol.dispose]: () => {
-      unmount();
-    },
   };
 };
 
 it('accepts valid field paths for get and change', () => {
-  using context = setup();
+  const context = setup();
   const { form } = context;
 
   form.field.change('name', 'jane');
@@ -63,7 +58,7 @@ it('accepts valid field paths for get and change', () => {
 });
 
 it('accepts valid array field paths for array methods', () => {
-  using context = setup();
+  const context = setup();
   const { form } = context;
 
   form.array.append('tags', 'b');
@@ -73,7 +68,7 @@ it('accepts valid array field paths for array methods', () => {
 });
 
 it('infers correct value types from field paths', () => {
-  using context = setup();
+  const context = setup();
   const { form } = context;
 
   expectTypeOf(form.field.get('name')).toEqualTypeOf<string>();
@@ -85,7 +80,7 @@ it('infers correct value types from field paths', () => {
 });
 
 it('infers updater types for change correctly', () => {
-  using context = setup();
+  const context = setup();
   const { form } = context;
 
   form.field.change('name', current => {
@@ -108,7 +103,7 @@ it('infers updater types for change correctly', () => {
 });
 
 it('exposes status via form.status getter', () => {
-  using context = setup();
+  const context = setup();
   const { form } = context;
 
   expect(form.status).toEqual(form.store.state.status);
@@ -116,7 +111,7 @@ it('exposes status via form.status getter', () => {
 });
 
 it('creates form id when id is not provided', () => {
-  using context = setup();
+  const context = setup();
   const { form } = context;
 
   expectTypeOf(form.id).toEqualTypeOf<string>();
@@ -135,7 +130,7 @@ it('uses provided id', () => {
 });
 
 it('updates options via ~update', async () => {
-  using context = setup();
+  const context = setup();
   const { form } = context;
   const initialId = form.id;
   const next = {

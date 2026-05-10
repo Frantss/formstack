@@ -21,18 +21,13 @@ const setup = (defaultValues: Values) => {
       }),
     },
   });
-  const unmount = form.store.mount();
-
   return {
     form,
-    [Symbol.dispose]: () => {
-      unmount();
-    },
   };
 };
 
 it('calls onSuccess and updates status when submit validation passes', async () => {
-  using context = setup({ name: 'valid' });
+  const context = setup({ name: 'valid' });
   const onSuccess = vi.fn(async () => {});
   const onError = vi.fn(async () => {});
 
@@ -48,7 +43,7 @@ it('calls onSuccess and updates status when submit validation passes', async () 
 });
 
 it('calls onError and updates status when submit validation fails', async () => {
-  using context = setup({ name: 'bad' });
+  const context = setup({ name: 'bad' });
   const onSuccess = vi.fn(async () => {});
   const onError = vi.fn(async () => {});
 
@@ -65,7 +60,7 @@ it('calls onError and updates status when submit validation fails', async () => 
 });
 
 it('uses submit validator when provided', async () => {
-  using context = setup({ name: 'four' });
+  const context = setup({ name: 'four' });
   const onSuccess = vi.fn(async () => {});
   const onError = vi.fn(async () => {});
 
@@ -77,7 +72,7 @@ it('uses submit validator when provided', async () => {
 });
 
 it('types callback second argument as FormApi', () => {
-  using context = setup({ name: 'valid' });
+  const context = setup({ name: 'valid' });
 
   const onSuccess: FormSubmitSuccessHandler<Values> = (values, form) => {
     expectTypeOf(values).toEqualTypeOf<Values>();

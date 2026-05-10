@@ -4,7 +4,7 @@ import z from 'zod';
 import { setup } from '#tests/form-core-field/setup';
 
 it('blurs a registered element reference', () => {
-  using context = setup();
+  const context = setup();
   const element = document.createElement('input');
   document.body.append(element);
   element.focus();
@@ -17,7 +17,7 @@ it('blurs a registered element reference', () => {
 });
 
 it('marks the field as blurred', () => {
-  using context = setup();
+  const context = setup();
 
   context.field.blur('name');
   const status = context.field.status('name');
@@ -26,7 +26,7 @@ it('marks the field as blurred', () => {
 });
 
 it('marks an ascendant field as blurred when blurring a nested field', () => {
-  using context = setup();
+  const context = setup();
 
   context.field.blur('nested.value');
   const status = context.field.status('nested');
@@ -35,7 +35,7 @@ it('marks an ascendant field as blurred when blurring a nested field', () => {
 });
 
 it('does not mark a descendant field as blurred when blurring a parent field', () => {
-  using context = setup();
+  const context = setup();
 
   context.field.blur('nested');
   const status = context.field.status('nested.value');
@@ -44,7 +44,7 @@ it('does not mark a descendant field as blurred when blurring a parent field', (
 });
 
 it('does not validate by default when blurring a field', () => {
-  using context = setup();
+  const context = setup();
   const validate = vi.spyOn(context.core, 'validate').mockResolvedValue([true, []]);
 
   context.field.blur('name');
@@ -53,7 +53,7 @@ it('does not validate by default when blurring a field', () => {
 });
 
 it('validates by default when blurring a field and a blur validator is configured', () => {
-  using context = setup({
+  const context = setup({
     validate: {
       blur: z.object({
         name: z.string(),
@@ -69,7 +69,7 @@ it('validates by default when blurring a field and a blur validator is configure
 });
 
 it('skips validation when should.validate is false', () => {
-  using context = setup({
+  const context = setup({
     validate: {
       blur: z.object({
         name: z.string(),
@@ -84,7 +84,7 @@ it('skips validation when should.validate is false', () => {
 });
 
 it('does not update state when the field is already blurred', () => {
-  using context = setup();
+  const context = setup();
 
   context.field.blur('name');
   const set = vi.spyOn(context.fields, 'set');

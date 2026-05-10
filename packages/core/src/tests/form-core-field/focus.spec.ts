@@ -4,7 +4,7 @@ import z from 'zod';
 import { setup } from '#tests/form-core-field/setup';
 
 it('focuses a registered element reference', () => {
-  using context = setup();
+  const context = setup();
   const element = document.createElement('input');
   document.body.append(element);
 
@@ -16,7 +16,7 @@ it('focuses a registered element reference', () => {
 });
 
 it('marks the field as touched', () => {
-  using context = setup();
+  const context = setup();
 
   context.field.focus('name');
   const status = context.field.status('name');
@@ -25,7 +25,7 @@ it('marks the field as touched', () => {
 });
 
 it('marks an ascendant field as touched when focusing a nested field', () => {
-  using context = setup();
+  const context = setup();
 
   context.field.focus('nested.value');
   const status = context.field.status('nested');
@@ -34,7 +34,7 @@ it('marks an ascendant field as touched when focusing a nested field', () => {
 });
 
 it('does not mark a descendant field as touched when focusing a parent field', () => {
-  using context = setup();
+  const context = setup();
 
   context.field.focus('nested');
   const status = context.field.status('nested.value');
@@ -43,7 +43,7 @@ it('does not mark a descendant field as touched when focusing a parent field', (
 });
 
 it('does not validate by default when focusing a field', () => {
-  using context = setup();
+  const context = setup();
   const validate = vi.spyOn(context.core, 'validate').mockResolvedValue([true, []]);
 
   context.field.focus('name');
@@ -52,7 +52,7 @@ it('does not validate by default when focusing a field', () => {
 });
 
 it('validates by default when focusing a field and a focus validator is configured', () => {
-  using context = setup({
+  const context = setup({
     validate: {
       focus: z.object({
         name: z.string(),
@@ -68,7 +68,7 @@ it('validates by default when focusing a field and a focus validator is configur
 });
 
 it('skips validation when should.validate is false', () => {
-  using context = setup({
+  const context = setup({
     validate: {
       focus: z.object({
         name: z.string(),
@@ -83,7 +83,7 @@ it('skips validation when should.validate is false', () => {
 });
 
 it('does not update state when the field is already touched', () => {
-  using context = setup();
+  const context = setup();
 
   context.field.focus('name');
   const set = vi.spyOn(context.fields, 'set');

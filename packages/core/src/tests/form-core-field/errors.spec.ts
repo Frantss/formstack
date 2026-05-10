@@ -16,7 +16,7 @@ const nestedIssue: FormIssue = {
 } as never;
 
 it('returns an empty array by default', () => {
-  using context = setup();
+  const context = setup();
 
   const errors = context.field.errors('name');
 
@@ -24,7 +24,7 @@ it('returns an empty array by default', () => {
 });
 
 it('returns errors for a specific field', () => {
-  using context = setup();
+  const context = setup();
 
   context.field.setErrors('name', [nameIssue]);
   const errors = context.field.errors('name');
@@ -33,7 +33,7 @@ it('returns errors for a specific field', () => {
 });
 
 it('returns the ascendant field errors updated by descendant setErrors', () => {
-  using context = setup();
+  const context = setup();
 
   context.field.setErrors('nested', [nameIssue]);
   context.field.setErrors('nested.value', [nestedIssue]);
@@ -43,7 +43,7 @@ it('returns the ascendant field errors updated by descendant setErrors', () => {
 });
 
 it('returns aggregated nested errors when nested option is enabled', () => {
-  using context = setup();
+  const context = setup();
 
   context.field.setErrors('nested.value', [nestedIssue]);
   const errors = context.field.errors('nested', { nested: true });

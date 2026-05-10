@@ -3,7 +3,7 @@ import { expect, it } from 'vitest';
 import { setup } from '#tests/form-core-fields/setup';
 
 it('shifts entries to the left from a position', () => {
-  using context = setup();
+  const context = setup();
   const expected0 = context.fields.get('array.0');
   const expected1 = context.fields.get('array.2');
 
@@ -17,7 +17,7 @@ it('shifts entries to the left from a position', () => {
 });
 
 it('shifts multiple entries to the left from a position', () => {
-  using context = setup();
+  const context = setup();
   const expected0 = context.fields.get('array.0');
   const expected1 = context.fields.get('array.1');
   const expected2 = context.fields.get('array.2');
@@ -43,7 +43,7 @@ it('shifts multiple entries to the left from a position', () => {
 });
 
 it('shifts entries to the right from a position', () => {
-  using context = setup();
+  const context = setup();
   const expected0 = context.fields.get('array.0');
   const expected2 = context.fields.get('array.1');
   const expected3 = context.fields.get('array.2');
@@ -60,7 +60,7 @@ it('shifts entries to the right from a position', () => {
 });
 
 it('shifts multiple entries to the right from a position', () => {
-  using context = setup();
+  const context = setup();
   const expected0 = context.fields.get('array.0');
   const expected1 = context.fields.get('array.1');
   const expected2 = context.fields.get('array.2');
@@ -89,7 +89,7 @@ it('shifts multiple entries to the right from a position', () => {
 });
 
 it('removes the source entry when shifting left', () => {
-  using context = setup();
+  const context = setup();
 
   context.fields.shift('array', 6, 'left');
   const entry = context.fields.get('array.6');
@@ -98,7 +98,7 @@ it('removes the source entry when shifting left', () => {
 });
 
 it('removes the source entry when shifting right', () => {
-  using context = setup();
+  const context = setup();
 
   context.fields.shift('array', 4, 'right');
   const entry = context.fields.get('array.4');

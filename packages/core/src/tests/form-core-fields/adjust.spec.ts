@@ -3,7 +3,7 @@ import { expect, it } from 'vitest';
 import { setup } from '#tests/form-core-fields/setup';
 
 it('adds entries for new value paths', () => {
-  using context = setup();
+  const context = setup();
 
   context.core.set('nested.extra', 'extra');
   context.fields.adjust();
@@ -18,7 +18,7 @@ it('adds entries for new value paths', () => {
 });
 
 it('preserves existing entry state when path already exists', () => {
-  using context = setup();
+  const context = setup();
 
   context.fields.set('name', {
     status: { dirty: true, touched: true, blurred: true },
@@ -31,7 +31,7 @@ it('preserves existing entry state when path already exists', () => {
 });
 
 it('keeps unrelated entries unchanged', () => {
-  using context = setup();
+  const context = setup();
 
   const expected = context.fields.get('name');
   context.core.set('nested.extra', 'extra');
@@ -42,7 +42,7 @@ it('keeps unrelated entries unchanged', () => {
 });
 
 it('adds new entries using wildcard defaults', () => {
-  using context = setup({
+  const context = setup({
     defaultFieldStatus: {
       '*': { touched: true },
     },

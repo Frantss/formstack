@@ -44,21 +44,17 @@ const setup = () => {
       }),
     },
   });
-  const unmount = core.store.mount();
   const fields = new FormCoreFields<Values>({ core });
   const field = new FormCoreField<Values>({ core, fields });
 
   return {
     core,
     field,
-    [Symbol.dispose]: () => {
-      unmount();
-    },
   };
 };
 
 it('validates the entire form when no fields are provided', async () => {
-  using context = setup();
+  const context = setup();
 
   const [valid, issues] = await context.core.validate();
 
@@ -70,17 +66,16 @@ it('validates the entire form when no fields are provided', async () => {
 });
 
 it('does not toggle validating status for sync schemas', async () => {
-  using context = setup();
+  const context = setup();
   const validatingStates: boolean[] = [];
-  const unmount = context.core.persisted.subscribe(() => {
+  const subscription = context.core.persisted.subscribe(() => {
     validatingStates.push(context.core.persisted.state.status.validating);
   });
 
   await context.core.validate('name');
-
-  unmount();
   expect(validatingStates).not.toContain(true);
   expect(context.core.persisted.state.status.validating).toBe(false);
+  subscription.unsubscribe();
 });
 
 it('toggles validating status for async schemas', async () => {
@@ -99,9 +94,8 @@ it('toggles validating status for async schemas', async () => {
     schema: asyncSchema,
     defaultValues,
   });
-  const unmountStore = core.store.mount();
   const validatingStates: boolean[] = [];
-  const unmountSubscribe = core.persisted.subscribe(() => {
+  const subscription = core.persisted.subscribe(() => {
     validatingStates.push(core.persisted.state.status.validating);
   });
 
@@ -112,14 +106,13 @@ it('toggles validating status for async schemas', async () => {
   gate.resolve();
   await validation;
 
-  unmountSubscribe();
-  unmountStore();
+  subscription.unsubscribe();
   expect(validatingStates).toContain(true);
   expect(core.persisted.state.status.validating).toBe(false);
 });
 
 it('validates only the selected fields when a field list is provided', async () => {
-  using context = setup();
+  const context = setup();
 
   context.field.setErrors('name', [{ code: 'custom', message: 'Existing name error', path: ['name'] } as never]);
 
@@ -134,7 +127,7 @@ it('validates only the selected fields when a field list is provided', async () 
 });
 
 it('uses the schema for the triggering event type', async () => {
-  using context = setup();
+  const context = setup();
 
   const [baseValid, baseIssues] = await context.core.validate('name');
   const [changeValid, changeIssues] = await context.core.validate('name', {
@@ -149,7 +142,7 @@ it('uses the schema for the triggering event type', async () => {
 });
 
 it('removes old errors when validating a field', async () => {
-  using context = setup();
+  const context = setup();
 
   context.core.set('name', 'valid name');
   context.field.setErrors('name', [{ code: 'custom', message: 'Old error', path: ['name'] } as never]);
@@ -162,7 +155,7 @@ it('removes old errors when validating a field', async () => {
 });
 
 it('removes errors when a validated field is no longer invalid', async () => {
-  using context = setup();
+  const context = setup();
 
   const [firstValid, firstIssues] = await context.core.validate('name');
   expect(firstValid).toBe(false);

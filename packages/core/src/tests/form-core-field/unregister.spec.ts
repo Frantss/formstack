@@ -3,7 +3,7 @@ import { expect, it } from 'vitest';
 import { setup } from '#tests/form-core-field/setup';
 
 it('clears the stored field reference', () => {
-  using context = setup();
+  const context = setup();
   const element = document.createElement('input');
 
   context.field.register('name')(element);
@@ -14,7 +14,7 @@ it('clears the stored field reference', () => {
 });
 
 it('keeps sibling field references unchanged', () => {
-  using context = setup();
+  const context = setup();
   const nameElement = document.createElement('input');
   const nestedElement = document.createElement('input');
 

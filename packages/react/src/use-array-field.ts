@@ -2,7 +2,7 @@ import { createArrayField } from 'oxform-core';
 
 import type { UseArrayFieldReturn } from '#types/use-array-field-return';
 import { useIsomorphicLayoutEffect } from '#use-isomorphic-layout-effect';
-import { useStore } from '@tanstack/react-store';
+import { useSelector } from '@tanstack/react-store';
 import type { AnyFormApi, ArrayFieldOptions, FormArrayFields, FormFieldValue } from 'oxform-core';
 import { useMemo, useState } from 'react';
 
@@ -21,17 +21,17 @@ export const useArrayField = <Form extends AnyFormApi, const Name extends FormAr
   // todo: re-create api if form or name changes
   // spike: use optional context to cache the api instance
 
-  const id = useStore(api.store, state => state.id);
-  const value = useStore(api.store, state => state.value);
-  const defaultValue = useStore(api.store, state => state.defaultValue);
-  const errors = useStore(api.store, state => state.errors);
-  const ref = useStore(api.store, state => state.ref);
-  const statusBlurred = useStore(api.store, state => state.status.blurred);
-  const statusTouched = useStore(api.store, state => state.status.touched);
-  const statusDirty = useStore(api.store, state => state.status.dirty);
-  const statusDefault = useStore(api.store, state => state.status.default);
-  const statusValid = useStore(api.store, state => state.status.valid);
-  const statusPristine = useStore(api.store, state => state.status.pristine);
+  const id = useSelector(api.store, state => state.id);
+  const value = useSelector(api.store, state => state.value);
+  const defaultValue = useSelector(api.store, state => state.defaultValue);
+  const errors = useSelector(api.store, state => state.errors);
+  const ref = useSelector(api.store, state => state.ref);
+  const statusBlurred = useSelector(api.store, state => state.status.blurred);
+  const statusTouched = useSelector(api.store, state => state.status.touched);
+  const statusDirty = useSelector(api.store, state => state.status.dirty);
+  const statusDefault = useSelector(api.store, state => state.status.default);
+  const statusValid = useSelector(api.store, state => state.status.valid);
+  const statusPristine = useSelector(api.store, state => state.status.pristine);
 
   return useMemo(() => {
     const state = {

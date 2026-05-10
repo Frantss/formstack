@@ -3,7 +3,7 @@ import { expect, it } from 'vitest';
 import { setup } from '#tests/form-core-array/setup';
 
 it('appends a value to the end of an array', () => {
-  using context = setup();
+  const context = setup();
 
   context.array.append('array', 'item3');
   const value = context.field.get('array');
@@ -12,7 +12,7 @@ it('appends a value to the end of an array', () => {
 });
 
 it('appends a value from an updater function', () => {
-  using context = setup();
+  const context = setup();
 
   context.array.append('array', () => 'item3');
   const value = context.field.get('array');
@@ -21,7 +21,7 @@ it('appends a value from an updater function', () => {
 });
 
 it('appends a value when array is undefined', () => {
-  using context = setup();
+  const context = setup();
 
   context.field.change('array', undefined as never);
   context.array.append('array', 'item3');
@@ -31,7 +31,7 @@ it('appends a value when array is undefined', () => {
 });
 
 it('marks the array field as dirty by default', () => {
-  using context = setup();
+  const context = setup();
 
   context.array.append('array', 'item3');
   const status = context.field.status('array');
@@ -40,7 +40,7 @@ it('marks the array field as dirty by default', () => {
 });
 
 it('marks the array field as touched by default', () => {
-  using context = setup();
+  const context = setup();
 
   context.array.append('array', 'item3');
   const status = context.field.status('array');
@@ -49,7 +49,7 @@ it('marks the array field as touched by default', () => {
 });
 
 it('does not mark the array field as dirty when should.dirty is false', () => {
-  using context = setup();
+  const context = setup();
 
   context.array.append('array', 'item3', { should: { dirty: false } });
   const status = context.field.status('array');
@@ -58,7 +58,7 @@ it('does not mark the array field as dirty when should.dirty is false', () => {
 });
 
 it('does not mark the array field as touched when should.touch is false', () => {
-  using context = setup();
+  const context = setup();
 
   context.array.append('array', 'item3', { should: { touch: false } });
   const status = context.field.status('array');
@@ -67,7 +67,7 @@ it('does not mark the array field as touched when should.touch is false', () => 
 });
 
 it('creates a field entry for the appended index', () => {
-  using context = setup();
+  const context = setup();
 
   context.array.append('array', 'item3');
   const entry = context.fields.get('array.2');
@@ -81,7 +81,7 @@ it('creates a field entry for the appended index', () => {
 });
 
 it('keeps sibling values unchanged', () => {
-  using context = setup();
+  const context = setup();
 
   context.array.append('array', 'item3');
   const value = context.field.get('sibling');
