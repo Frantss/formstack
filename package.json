@@ -38,7 +38,7 @@
     "fix:all": "bun run fix:rules && bun run fix:format",
     "version:add": "changeset add",
     "version:bump": "changeset version",
-    "publish": "changeset publish",
+    "publish": "bun run scripts/resolve-publish-protocols.ts && changeset publish",
     "prepublish": "bun run build && bun run check:all"
   },
   "devDependencies": {
