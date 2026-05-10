@@ -1,5 +1,13 @@
 # example-oxform-react
 
+## 0.1.2
+
+### Patch Changes
+
+- ef36e30: Fix package.json
+- Updated dependencies [ef36e30]
+  - oxform-react@0.3.1
+
 ## 0.1.1
 
 ### Patch Changes

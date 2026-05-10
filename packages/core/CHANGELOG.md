@@ -1,5 +1,11 @@
 # oxform-core
 
+## 0.3.1
+
+### Patch Changes
+
+- ef36e30: Fix package.json
+
 ## 0.3.0
 
 ### Minor Changes

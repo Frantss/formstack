@@ -1,5 +1,13 @@
 # oxform-react
 
+## 0.3.1
+
+### Patch Changes
+
+- ef36e30: Fix package.json
+- Updated dependencies [ef36e30]
+  - oxform-core@0.3.1
+
 ## 0.3.0
 
 ### Minor Changes
