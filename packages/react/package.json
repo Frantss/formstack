@@ -33,7 +33,7 @@
     "check:package": "publint --strict && attw --pack --no-emoji"
   },
   "dependencies": {
-    "@standard-schema/spec": "catalog:oxform",
+    "@standard-schema/spec": "^1.1.0",
     "@tanstack/react-store": "0.8.0",
     "oxform-core": "workspace:*"
   },
@@ -42,12 +42,12 @@
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^5.1.2",
-    "publint": "catalog:oxform",
+    "publint": "^0.3.16",
     "react": "19.2.3",
     "react-dom": "19.2.3",
-    "tsdown": "catalog:oxform",
-    "typescript": "catalog:oxform",
-    "vitest": "catalog:oxform",
+    "tsdown": "^0.20.3",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.18",
     "vitest-browser-react": "^2.0.2",
     "zod": "^4.2.1"
   },
