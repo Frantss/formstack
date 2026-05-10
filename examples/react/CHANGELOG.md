@@ -1,5 +1,13 @@
 # example-oxform-react
 
+## 0.1.1
+
+### Patch Changes
+
+- 59c00a6: bug: fix package.json
+- Updated dependencies [59c00a6]
+  - oxform-react@0.3.0
+
 ## 0.1.0
 
 ### Minor Changes

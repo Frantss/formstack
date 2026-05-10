@@ -1,5 +1,11 @@
 # oxform-core
 
+## 0.3.0
+
+### Minor Changes
+
+- 59c00a6: bug: fix package.json
+
 ## 0.2.0
 
 ### Minor Changes
