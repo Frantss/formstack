@@ -10,15 +10,15 @@
 
 - Run `bun run build` to compile all packages for production.
 - Use `bun run build:dev` for watch mode—rebuilds automatically on file changes.
-- The build uses tsdown to output both ESM and CJS formats.
+- Library packages build through `vp pack`, which uses tsdown under Vite+.
 
 ## Testing Commands
 
 - Run `bun run test` to execute tests across all packages.
-- From inside a package directory, run `bun vitest run` to test just that package.
-- Run a single test file with `bun vitest run src/tests/field/change.spec.ts`.
-- Filter tests by name with `bun vitest run -t "<test name>"`.
-- Tests run in a headless Playwright browser (chromium) via Vitest browser mode.
+- From inside a package directory, run `vp test` to test just that package.
+- Run a single test file with `vp test run src/tests/field/change.spec.ts`.
+- Filter tests by name with `vp test -t "<test name>"`.
+- Tests run in a headless Playwright browser (chromium) via Vite+ test mode.
 
 ## Linting & Formatting Commands
 
@@ -31,6 +31,7 @@
 ## Type Checking Commands
 
 - Run `bun run check:types` to type-check all packages.
+- Package type checks run through `vp exec tsc --noEmit`.
 - Always ensure types pass before committing.
 
 ## Package Validation

@@ -1,4 +1,4 @@
-import { expect, it, vi } from 'vitest';
+import { expect, it, vi } from 'vite-plus/test';
 import z from 'zod';
 
 import { setup } from '#tests/form-core-field/setup';

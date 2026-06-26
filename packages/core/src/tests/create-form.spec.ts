@@ -1,5 +1,5 @@
 import { createForm } from '#form/create-form';
-import { expect, expectTypeOf, it } from 'vitest';
+import { expect, expectTypeOf, it } from 'vite-plus/test';
 import z from 'zod';
 
 const schema = z.object({

@@ -1,6 +1,6 @@
 ---
-"oxform-core": minor
-"oxform-react": minor
+'oxform-core': minor
+'oxform-react': minor
 ---
 
 chore: update dependencies

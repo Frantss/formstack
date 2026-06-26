@@ -27,10 +27,11 @@
     "./package.json": "./package.json"
   },
   "scripts": {
-    "build": "tsdown --config-loader unrun",
-    "test": "vitest",
-    "check:types": "tsc --noEmit",
-    "check:package": "publint --strict && attw --pack --no-emoji"
+    "build": "vp pack",
+    "test": "vp test",
+    "test:dev": "vp test --watch",
+    "check:types": "vp exec tsc --noEmit",
+    "check:package": "vp exec node --max-old-space-size=4096 ../../node_modules/.bun/publint@0.3.16/node_modules/publint/src/cli.js --strict && vp exec node ../../node_modules/.bun/@arethetypeswrong+cli@0.18.2/node_modules/@arethetypeswrong/cli/dist/index.js --pack --no-emoji"
   },
   "dependencies": {
     "@standard-schema/spec": "^1.1.0",
@@ -45,9 +46,7 @@
     "publint": "^0.3.16",
     "react": "19.2.6",
     "react-dom": "19.2.6",
-    "tsdown": "^0.20.3",
     "typescript": "^5.9.3",
-    "vitest": "^4.0.18",
     "vitest-browser-react": "^2.2.0",
     "zod": "^4.4.3"
   },

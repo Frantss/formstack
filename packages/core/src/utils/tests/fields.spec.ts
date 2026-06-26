@@ -1,7 +1,7 @@
 import { fields_build, fields_delete, fields_move, fields_remove, fields_reset, fields_root, fields_set, fields_shift } from '#utils/fields';
 import type { FormOptions } from '#types/api/form-options';
 import { generateId } from '#utils/generate-id';
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vite-plus/test';
 
 vi.mock('#utils/generate-id', { spy: true });
 

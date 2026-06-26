@@ -1,6 +1,6 @@
 import { createField } from '#form/create-field';
 import { createForm } from '#form/create-form';
-import { expect, it } from 'vitest';
+import { expect, it } from 'vite-plus/test';
 import z from 'zod';
 
 const schema = z.object({

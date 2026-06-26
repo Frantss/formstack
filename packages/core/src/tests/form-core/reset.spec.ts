@@ -2,7 +2,7 @@ import { FormCore } from '#form/form-core';
 import { FormCoreField } from '#form/form-core-field';
 import { FormCoreFields } from '#form/form-core-fields';
 import type { FormOptions } from '#types/api/form-options';
-import { expect, it } from 'vitest';
+import { expect, it } from 'vite-plus/test';
 import z from 'zod';
 
 const schema = z.object({

@@ -1,7 +1,7 @@
 // reference: https://stevekinney.com/courses/react-performance/performance-testing-strategy
 
 import { Profiler, type ProfilerOnRenderCallback } from 'react';
-import { expect } from 'vitest';
+import { expect } from 'vite-plus/test';
 import { render } from 'vitest-browser-react';
 
 interface RenderMetrics {

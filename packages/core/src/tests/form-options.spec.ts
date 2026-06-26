@@ -1,6 +1,6 @@
 import { formOptions } from '#form/form-options';
 import type { FormOptions, FormValidator } from '#types/api/form-options';
-import { expect, expectTypeOf, it } from 'vitest';
+import { expect, expectTypeOf, it } from 'vite-plus/test';
 import z from 'zod';
 
 const defaults: FormOptions<{ name: string; age: number }> = {

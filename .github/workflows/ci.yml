@@ -31,14 +31,11 @@ jobs:
       - name: Build
         run: bun run build
 
-      - name: Check types
-        run: bun run check:types
+      - name: Check (fmt + lint + types)
+        run: bun run check
 
-      - name: Check lint rules
-        run: bun run check:rules
-
-      - name: Check formatting
-        run: bun run check:format
+      - name: Check package
+        run: bun run check:package
 
       - name: Run tests
         run: bun run test
