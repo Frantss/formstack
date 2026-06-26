@@ -31,7 +31,7 @@
     "test": "vp test",
     "test:dev": "vp test --watch",
     "check:types": "vp exec tsc --noEmit",
-    "check:package": "vp exec node --max-old-space-size=4096 ../../node_modules/.bun/publint@0.3.16/node_modules/publint/src/cli.js --strict && vp exec node ../../node_modules/.bun/@arethetypeswrong+cli@0.18.2/node_modules/@arethetypeswrong/cli/dist/index.js --pack --no-emoji"
+    "check:package": "publint --strict && attw --pack --no-emoji"
   },
   "dependencies": {
     "@standard-schema/spec": "^1.1.0",
@@ -39,19 +39,19 @@
     "oxform-core": "workspace:*"
   },
   "devDependencies": {
-    "@arethetypeswrong/cli": "^0.18.2",
-    "@types/react": "^19.2.14",
+    "@arethetypeswrong/cli": "^0.18.4",
+    "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
-    "@vitejs/plugin-react": "^5.2.0",
-    "publint": "^0.3.16",
-    "react": "19.2.6",
-    "react-dom": "19.2.6",
-    "typescript": "^5.9.3",
+    "@vitejs/plugin-react": "^6.0.3",
+    "publint": "^0.3.21",
+    "react": "19.2.7",
+    "react-dom": "19.2.7",
+    "typescript": "^6.0.3",
     "vitest-browser-react": "^2.2.0",
     "zod": "^4.4.3"
   },
   "peerDependencies": {
-    "react": "^19.2.6",
-    "react-dom": "^19.2.6"
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7"
   }
 }
