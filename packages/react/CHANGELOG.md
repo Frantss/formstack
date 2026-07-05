@@ -1,5 +1,16 @@
 # oxform-react
 
+## 0.4.0
+
+### Minor Changes
+
+- e9fa682: chore: update dependencies
+
+### Patch Changes
+
+- Updated dependencies [e9fa682]
+  - oxform-core@0.4.0
+
 ## 0.3.1
 
 ### Patch Changes
