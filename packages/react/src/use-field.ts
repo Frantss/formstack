@@ -1,4 +1,4 @@
-import type { AnyFormApi, EventLike, FieldOptions, FormFields, FormFieldValue } from 'oxform-core';
+import type { AnyFormApi, EventLike, FieldOptions, FormIssueLevels, FormFields, FormFieldValue } from 'oxform-core';
 
 import type { UseFieldReturn } from '#types/use-field-return';
 import { useFieldApi } from '#use-field-api';
@@ -7,12 +7,12 @@ import { useMemo } from 'react';
 
 export const useField = <Form extends AnyFormApi, const Name extends FormFields<Form>>(
   options: FieldOptions<Form, Name>,
-): UseFieldReturn<FormFieldValue<Form, Name>> => {
+): UseFieldReturn<FormFieldValue<Form, Name>, FormIssueLevels<Form>> => {
   const api = useFieldApi(options);
   const id = useSelector(api.store, state => state.id);
   const value = useSelector(api.store, state => state.value);
   const defaultValue = useSelector(api.store, state => state.defaultValue);
-  const errors = useSelector(api.store, state => state.errors);
+  const issues = useSelector(api.store, state => state.issues);
   const ref = useSelector(api.store, state => state.ref);
   const statusBlurred = useSelector(api.store, state => state.status.blurred);
   const statusTouched = useSelector(api.store, state => state.status.touched);
@@ -26,7 +26,7 @@ export const useField = <Form extends AnyFormApi, const Name extends FormFields<
       id,
       value,
       defaultValue,
-      errors,
+      issues,
       ref,
       status: {
         blurred: statusBlurred,
@@ -65,7 +65,7 @@ export const useField = <Form extends AnyFormApi, const Name extends FormFields<
     id,
     value,
     defaultValue,
-    errors,
+    issues,
     ref,
     statusBlurred,
     statusTouched,
@@ -73,5 +73,5 @@ export const useField = <Form extends AnyFormApi, const Name extends FormFields<
     statusDefault,
     statusValid,
     statusPristine,
-  ]) as UseFieldReturn<FormFieldValue<Form, Name>>;
+  ]) as UseFieldReturn<FormFieldValue<Form, Name>, FormIssueLevels<Form>>;
 };

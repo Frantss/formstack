@@ -29,7 +29,11 @@ export function SignupForm() {
   const form = useForm({
     schema,
     defaultValues: { name: '', email: '' },
-    validate: { change: schema },
+    checks: {
+      error: {
+        validate: { change: schema },
+      },
+    },
   });
 
   return (
@@ -73,7 +77,11 @@ const schema = z.object({ directions: z.string().array() });
 const form = useForm({
   schema,
   defaultValues: { directions: [] },
-  validate: { change: schema },
+  checks: {
+    error: {
+      validate: { change: schema },
+    },
+  },
 });
 
 <ArrayField form={form} name='directions'>
@@ -129,7 +137,15 @@ narrow `selector` to avoid re-rendering on unrelated form state changes.
 ```tsx
 import { useFieldApi, useForm, useFormEffect } from 'oxform-react';
 
-const form = useForm({ schema, defaultValues: { name: '' }, validate: { change: schema } });
+const form = useForm({
+  schema,
+  defaultValues: { name: '' },
+  checks: {
+    error: {
+      validate: { change: schema },
+    },
+  },
+});
 const name = useFieldApi({ form, name: 'name' });
 
 useFormEffect(
@@ -153,15 +169,19 @@ The selector and callback refs are updated on every render; the underlying
 effect is recreated only when `api` changes. The first run is skipped — only
 subsequent changes invoke the callback.
 
-### Reading errors
+### Reading error issues
 
-`field.state.errors` is a `FormIssue[]` (a Standard Schema issue list). A
-typical inline error component:
+`field.state.issues.error` is a `FormIssueEntry<'error'>[]`. A typical
+inline error component:
 
 ```tsx
-function FieldError({ field }: { field: { state: { status: { valid: boolean }; errors: { message: string }[] } } }) {
+function FieldError({
+  field,
+}: {
+  field: { state: { status: { valid: boolean }; issues: { error: { issue: { message: string } }[] } } };
+}) {
   if (field.state.status.valid) return null;
-  return <span>{field.state.errors.map(e => e.message).join(', ')}</span>;
+  return <span>{field.state.issues.error.map(e => e.issue.message).join(', ')}</span>;
 }
 ```
 
@@ -185,13 +205,17 @@ Options come from [`FormOptions`](../core/readme.md#formoptionsvalues).
 const form = useForm({
   schema,
   defaultValues: { email: '' },
-  validate: { change: schema, submit: schema },
+  checks: {
+    error: {
+      validate: { change: schema, submit: schema },
+    },
+  },
 });
 
 form.field.change('email', 'ada@example.com');
 form.submit(
   values => save(values),
-  issues => toast(issues),
+  issues => toast(issues.error),
 )();
 form.reset();
 ```
@@ -206,10 +230,10 @@ form.reset();
 useField<Form, Name>(options: FieldOptions<Form, Name>): UseFieldReturn<Value>
 ```
 
-Subscribes to a single field's value, errors, status, and ref. Returns a
+Subscribes to a single field's value, issues, status, and ref. Returns a
 `FieldApi` extended with two extras:
 
-- `state` — `{ id, value, defaultValue, errors, ref, status }`
+- `state` — `{ id, value, defaultValue, issues, ref, status }`
 - `props` — `{ value, ref, onChange, onBlur, onFocus }` ready to spread.
 
 ```tsx
@@ -217,7 +241,7 @@ const field = useField({ form, name: 'email' });
 
 <input {...field.props} />;
 field.change('new value');
-field.errors(); // FormIssue[]
+field.issues().error; // FormIssueEntry<'error'>[]
 ```
 
 The `onChange` handler reads `event.target?.value` (matches both DOM events
@@ -382,11 +406,13 @@ don't need a separate import. See the
   `ArrayFieldOptions`, `ArrayFieldStore`, `ArrayLike`, `EventLike`,
   `FieldApi`, `FieldBlurOptions`, `FieldChangeOptions`, `FieldExtra`,
   `FieldFocusOptions`, `FieldOptions`, `FieldPlugin`, `FieldPluginsInput`,
-  `FieldResetKeepOptions`, `FieldResetStatus`, `FieldSetErrorsMode`,
+  `FieldResetKeepOptions`, `FieldResetStatus`, `FieldSetIssuesMode`,
   `FieldState`, `FieldStatus`, `FieldStore`, `FormApi`, `FormArrayFields`,
-  `FormErrorsOptions`, `FormFields`, `FormFieldValue`, `FormIssue`,
+  `FormIssue`, `FormIssueLevel`, `FormIssuesByLevel`,
+  `FormIssuesByLevelInput`, `FormChecksMap`, `FormIssuesOptions`,
+  `FormErrorIssueLevel`, `FormFields`, `FormFieldValue`, `FormIssue`,
   `FormLikeStore`, `FormOptions`, `FormResetFieldOptions`,
-  `FormResetKeepOptions`, `FormResetOptions`, `FormSetErrorsOptions`,
+  `FormResetKeepOptions`, `FormResetOptions`, `FormSetIssuesOptions`,
   `FormStatus`, `FormStore`, `FormSubmitErrorHandler`,
   `FormSubmitSuccessHandler`, `FormValues`, `FormWithOptions`,
   `StandardSchema`, `ValidateOptions`, `ValidationType`.

@@ -1,4 +1,6 @@
-export type Fields<Issue = unknown> = Record<
+import type { FormIssuesByLevel } from '#types/api/form-issue-entry';
+
+export type Fields<Level extends string = string> = Record<
   string,
   {
     id: string;
@@ -10,7 +12,7 @@ export type Fields<Issue = unknown> = Record<
       valid: boolean;
       pristine: boolean;
     };
-    errors: Issue[];
+    issues: FormIssuesByLevel<Level>;
     ref: HTMLElement | null;
   }
 >;

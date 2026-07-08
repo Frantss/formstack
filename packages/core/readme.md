@@ -28,7 +28,11 @@ const schema = z.object({
 const options = formOptions({
   schema,
   defaultValues: { name: '', email: '' },
-  validate: { change: schema },
+  checks: {
+    error: {
+      validate: { change: schema },
+    },
+  },
 });
 
 const form = createForm(options);
@@ -68,17 +72,17 @@ The top-level form instance returned by `createForm`.
 
 ### Getters
 
-| Getter     | Type                                                     | Description                                                  |
-| ---------- | -------------------------------------------------------- | ------------------------------------------------------------ |
-| `id`       | `string`                                                 | Form identifier (from `options.id` or auto-generated).       |
-| `options`  | `FormOptions<Values>`                                    | Current options object.                                      |
-| `store`    | `Derived<FormStore<Values>>`                             | TanStack derived store.                                      |
-| `status`   | `FormStatus`                                             | Current form status snapshot.                                |
-| `values`   | `Values`                                                 | Current values snapshot.                                     |
-| `validate` | `(fields?, options?) => Promise<[boolean, FormIssue[]]>` | Bound `FormCore.validate`. See [validate](#validate).        |
-| `reset`    | `(options?: FormResetOptions<Values>) => void`           | Bound `FormCore.reset`. See [reset](#reset).                 |
-| `field`    | `FormCoreField<Values>`                                  | Per-field operations — see [`form.field`](#formfield).       |
-| `array`    | `FormCoreArray<Values>`                                  | Per-array-field operations — see [`form.array`](#formarray). |
+| Getter     | Type                                                           | Description                                                  |
+| ---------- | -------------------------------------------------------------- | ------------------------------------------------------------ |
+| `id`       | `string`                                                       | Form identifier (from `options.id` or auto-generated).       |
+| `options`  | `FormOptions<Values>`                                          | Current options object.                                      |
+| `store`    | `Derived<FormStore<Values>>`                                   | TanStack derived store.                                      |
+| `status`   | `FormStatus`                                                   | Current form status snapshot.                                |
+| `values`   | `Values`                                                       | Current values snapshot.                                     |
+| `validate` | `(fields?, options?) => Promise<[boolean, FormIssuesByLevel]>` | Bound `FormCore.validate`. See [validate](#validate).        |
+| `reset`    | `(options?: FormResetOptions<Values>) => void`                 | Bound `FormCore.reset`. See [reset](#reset).                 |
+| `field`    | `FormCoreField<Values>`                                        | Per-field operations — see [`form.field`](#formfield).       |
+| `array`    | `FormCoreArray<Values>`                                        | Per-array-field operations — see [`form.array`](#formarray). |
 
 ### Methods
 
@@ -93,9 +97,11 @@ submit(
 
 Returns an async submit handler. When invoked it sets `status.submitting`
 and `status.dirty` to `true`, runs `validate(undefined, { type: 'submit' })`,
-calls `onSuccess(values, form)` if valid or `onError(issues, form)` if not,
-increments `status.submits`, and finally clears `submitting` and writes
-`status.successful = valid`.
+then evaluates the current form validity. It calls `onSuccess(values, form)`
+only when submit validation passes and the form has no current blocking
+issues. Otherwise it calls `onError(issues, form)` with the current
+form issues, increments `status.submits`, and finally clears `submitting` and writes
+`status.successful`.
 
 #### `validate`
 
@@ -103,15 +109,89 @@ increments `status.submits`, and finally clears `submitting` and writes
 validate(
   fields?: DeepKeys<Values> | DeepKeys<Values>[],
   options?: ValidateOptions,
-): Promise<[boolean, FormIssue[]]>
+): Promise<[boolean, FormIssuesByLevel]>
 ```
 
-Validates with the schema selected by `options.type` (one of
-`change` | `blur` | `focus` | `submit`) or the base `schema` when omitted.
+Validates the unified issues pipeline and returns grouped issues.
+The reserved `error` level is always blocking. With no `options.type`,
+`validate()` runs the root `schema` as `issues.error` plus configured
+checks. For submit, it runs `checks.error.validate.submit ?? schema`. Change,
+blur, and focus run error validation only when configured under
+`checks.error.validate`.
 With no `fields` it validates the whole form; otherwise it validates the
-listed paths and their descendants and leaves other field errors untouched.
+listed paths and their descendants and leaves other field issues untouched.
 Sets `status.validating = true` for async validation. Returns
 `[valid, issues]`.
+
+#### Checks and issues
+
+Checks are Standard Schema validators for non-error feedback such as warnings,
+notices, and risk checks. They are configured by issue level and validation
+event. See the full [checks and issues reference](../../docs/checks-and-issues.md)
+for event behavior, blocking levels, manual issues, React usage, and type
+inference details.
+
+```ts
+const form = createForm({
+  schema,
+  defaultValues,
+  checks: {
+    warning: {
+      blocking: false,
+      validate: {
+        change: z.object({
+          email: z.email().refine(value => value.endsWith('@company.com'), 'Use a company email'),
+        }),
+      },
+    },
+    risk: {
+      blocking: true,
+      validate: {
+        submit: z.object({
+          email: z.email().refine(value => !value.endsWith('@blocked.example'), 'Blocked domain'),
+        }),
+      },
+    },
+  },
+});
+```
+
+```ts
+validate(
+  fields?: DeepKeys<Values> | DeepKeys<Values>[],
+  options?: ValidateOptions,
+): Promise<[boolean, FormIssuesByLevel]>
+```
+
+Issues are returned as an object keyed by issue level:
+
+```ts
+const [, issues] = await form.validate('email');
+issues.error; // FormIssueEntry<'error'>[]
+issues.warning; // FormIssueEntry<'warning'>[]
+```
+
+The returned boolean describes the issues emitted by that validation run:
+it is `false` when the run produced at least one issue whose level is
+configured as blocking.
+
+Issues use the same target behavior as `validate`: with no `fields`, the
+whole form is checked; otherwise only the listed paths and their descendants
+are updated. Issues are event-scoped. Pass `options.type` to run one
+event, or omit it to run every configured issue event. Running submit
+issues replaces only prior submit issues, so existing change warnings
+and other event issues remain visible. Running all issues refreshes
+event-produced issues for the target subtree. Manual issues written
+with `setIssues` are preserved by event validation.
+
+Each issue contains `{ type?, level, issue }`. `type` is the validation
+event that produced the issue. Levels with `{ blocking: true }` make the
+affected field and form invalid and can fail `submit()`. Submit fails if any
+current issue is blocking after submit validation completes, including
+issues from other events or manual issues.
+
+Async issues are ignored if form values changed before they resolved, so
+slower stale validations cannot overwrite newer field state.
 
 #### `reset`
 
@@ -121,7 +201,8 @@ reset(options?: FormResetOptions<Values>): void
 
 Resets values to `options.values ?? defaultValues`, rebuilds field state from
 those values, and resets statuses. Use `options.keep` to preserve
-`errors`, `refs`, or `fields` across the reset. See
+issues, refs, or fields across the reset. Use
+`keep.issues: ['error']` to preserve only validation errors. See
 [`FormResetOptions`](#formresetoptionsvalues).
 
 ### Internal / lifecycle
@@ -142,18 +223,18 @@ Methods on `FormApi.field` (`FormCoreField<Values>`). All `name` arguments are
 type-safe deep paths into `Values` (e.g. `'profile.email'`,
 `'items.0.title'`).
 
-| Method                              | Signature                                                                                                           |
-| ----------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
-| `change(name, updater, options?)`   | `(name, value \| ((current) => value), options?: FieldChangeOptions) => void`                                       |
-| `focus(name, options?)`             | `(name, options?: FieldFocusOptions) => void`                                                                       |
-| `blur(name, options?)`              | `(name, options?: FieldBlurOptions) => void`                                                                        |
-| `get(name)`                         | `(name) => DeepValue<Values, Name>`                                                                                 |
-| `status(name)`                      | `(name) => FieldStatus`                                                                                             |
-| `register(name)`                    | `(name) => (element: HTMLElement \| null) => void`                                                                  |
-| `unregister(name)`                  | `(name) => void`                                                                                                    |
-| `errors(name, options?)`            | `(name, options?: FormErrorsOptions) => FormIssue[]` — pass `{ nested: true }` to include descendants.              |
-| `setErrors(name, errors, options?)` | `(name, errors, options?: FormSetErrorsOptions) => void` — `mode` is `'replace'` (default) / `'append'` / `'keep'`. |
-| `reset(name, options?)`             | `(name, options?: FormResetFieldOptions<Value>) => void`                                                            |
+| Method                              | Signature                                                                                                                                   |
+| ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| `change(name, updater, options?)`   | `(name, value \| ((current) => value), options?: FieldChangeOptions) => void`                                                               |
+| `focus(name, options?)`             | `(name, options?: FieldFocusOptions) => void`                                                                                               |
+| `blur(name, options?)`              | `(name, options?: FieldBlurOptions) => void`                                                                                                |
+| `get(name)`                         | `(name) => DeepValue<Values, Name>`                                                                                                         |
+| `status(name)`                      | `(name) => FieldStatus`                                                                                                                     |
+| `register(name)`                    | `(name) => (element: HTMLElement \| null) => void`                                                                                          |
+| `unregister(name)`                  | `(name) => void`                                                                                                                            |
+| `issues(name, options?)`            | `(name, options?: FormIssuesOptions) => FormIssuesByLevel` — pass `{ nested: true }` to include descendants.                                |
+| `setIssues(name, issues, options?)` | `(name, issues: FormIssuesByLevelInput, options?: FormSetIssuesOptions) => void` — `mode` is `'replace'` (default) / `'append'` / `'keep'`. |
+| `reset(name, options?)`             | `(name, options?: FormResetFieldOptions<Value>) => void`                                                                                    |
 
 Behavior summary (full spec in [form-core-behaviors.md](../../docs/form-core-behaviors.md)):
 
@@ -162,9 +243,10 @@ Behavior summary (full spec in [form-core-behaviors.md](../../docs/form-core-beh
   a `change` validator is configured (or `should.validate` is set).
 - `focus` / `blur` set `touched` / `blurred` on target + ascendants and
   validate only when a matching event validator is configured.
-- `errors({ nested: true })` aggregates errors across descendant paths.
+- `issues({ nested: true })` aggregates issues across descendant
+  paths.
 - `reset` defaults the value to `options.value ?? defaultValue`, clears the
-  field's `dirty/touched/blurred/errors`, and does not affect siblings.
+  field's `dirty/touched/blurred/issues`, and does not affect siblings.
 
 ---
 
@@ -209,17 +291,17 @@ reference (e.g. to subscribe to its `store`).
 
 ### Methods
 
-| Method                        | Signature                                                               |
-| ----------------------------- | ----------------------------------------------------------------------- |
-| `change(updater, options?)`   | `(value \| ((current) => value), options?: FieldChangeOptions) => void` |
-| `focus(options?)`             | `(options?: FieldFocusOptions) => void`                                 |
-| `blur(options?)`              | `(options?: FieldBlurOptions) => void`                                  |
-| `get()`                       | `() => Value`                                                           |
-| `register(element)`           | `(element: HTMLElement \| null) => void`                                |
-| `unregister()`                | `() => void`                                                            |
-| `errors(options?)`            | `(options?: FormErrorsOptions) => FormIssue[]`                          |
-| `setErrors(errors, options?)` | `(errors: FormIssue[], options?: FormSetErrorsOptions) => void`         |
-| `reset(options?)`             | `(options?: FormResetFieldOptions<Value>) => void`                      |
+| Method                        | Signature                                                                  |
+| ----------------------------- | -------------------------------------------------------------------------- |
+| `change(updater, options?)`   | `(value \| ((current) => value), options?: FieldChangeOptions) => void`    |
+| `focus(options?)`             | `(options?: FieldFocusOptions) => void`                                    |
+| `blur(options?)`              | `(options?: FieldBlurOptions) => void`                                     |
+| `get()`                       | `() => Value`                                                              |
+| `register(element)`           | `(element: HTMLElement \| null) => void`                                   |
+| `unregister()`                | `() => void`                                                               |
+| `issues(options?)`            | `(options?: FormIssuesOptions) => FormIssuesByLevel`                       |
+| `setIssues(issues, options?)` | `(issues: FormIssuesByLevelInput, options?: FormSetIssuesOptions) => void` |
+| `reset(options?)`             | `(options?: FormResetFieldOptions<Value>) => void`                         |
 
 ### Internal / lifecycle
 
@@ -282,6 +364,7 @@ Per-array-field handle returned by `createArrayField`. Proxies into
 | `validate?.submit`    | `FormValidator<Values>`                                                          | Schema used during `submit()`.                               |
 | `validate?.blur`      | `FormValidator<Values>`                                                          | Schema used on `blur` events.                                |
 | `validate?.focus`     | `FormValidator<Values>`                                                          | Schema used on `focus` events.                               |
+| `checks?`             | `FormChecksMap<Values>`                                                          | Level-keyed check config with validators and blocking.       |
 
 `FormValidator<Values>` is `StandardSchema<PartialDeep<Values>>` or a function
 that receives the current form store and returns one.
@@ -359,7 +442,7 @@ Snapshot read from `field.store.state`.
 | `successful` | `boolean` | Last submission succeeded.                     |
 | `dirty`      | `boolean` | Form (or any field) has changed from defaults. |
 | `submitted`  | `boolean` | `submits > 0`.                                 |
-| `valid`      | `boolean` | No field has errors.                           |
+| `valid`      | `boolean` | No field has errors or blocking issues.        |
 | `blurred`    | `boolean` | Some field has been blurred.                   |
 | `touched`    | `boolean` | Some field has been touched.                   |
 | `pristine`   | `boolean` | Inverse of `dirty`.                            |
@@ -372,25 +455,27 @@ Snapshot read from `field.store.state`.
 | `touched`  | `boolean` | Field has been focused or changed. |
 | `dirty`    | `boolean` | Value differs from default.        |
 | `default`  | `boolean` | Value deep-equals default.         |
-| `valid`    | `boolean` | No errors on this field.           |
+| `valid`    | `boolean` | No errors or blocking issues.      |
 | `pristine` | `boolean` | Inverse of `dirty`.                |
 
 ### `FieldState`
 
 ```ts
-{ id: string; status: FieldStatus; errors: FormIssue[]; ref: HTMLElement | null }
+{ id: string; status: FieldStatus; errors: FormIssue[]; issues: FormIssuesByLevel; ref: HTMLElement | null }
 ```
 
 ---
 
 ## Validation types
 
-| Type              | Definition                                  | Notes                                           |
-| ----------------- | ------------------------------------------- | ----------------------------------------------- |
-| `ValidationType`  | `'change' \| 'submit' \| 'blur' \| 'focus'` | Picks which entry of `options.validate` to use. |
-| `ValidateOptions` | `{ type?: ValidationType }`                 | Passed to `form.validate(...)`.                 |
-| `FormIssue`       | `StandardSchema.Issue`                      | Re-exported from `@standard-schema/spec`.       |
-| `StandardSchema`  | `StandardSchema.V1`                         | Re-exported alias.                              |
+| Type                | Definition                                  | Notes                                           |
+| ------------------- | ------------------------------------------- | ----------------------------------------------- |
+| `ValidationType`    | `'change' \| 'submit' \| 'blur' \| 'focus'` | Picks which entry of `options.validate` to use. |
+| `ValidateOptions`   | `{ type?: ValidationType }`                 | Passed to `form.validate(...)`.                 |
+| `FormIssue`         | `StandardSchema.Issue`                      | Re-exported from `@standard-schema/spec`.       |
+| `FormIssue`         | `{ type?: ValidationType; level; issue }`   | Non-error validation feedback.                  |
+| `FormIssuesByLevel` | `{ [Level]: FormIssueEntry<Level>[] }`      | Issues grouped by issue level.                  |
+| `StandardSchema`    | `StandardSchema.V1`                         | Re-exported alias.                              |
 
 ---
 
@@ -438,11 +523,11 @@ Snapshot read from `field.store.state`.
 
 ### `FormResetKeepOptions`
 
-| Field     | Description                              |
-| --------- | ---------------------------------------- |
-| `errors?` | Keep current per-field errors.           |
-| `refs?`   | Keep registered HTML element references. |
-| `fields?` | Keep current field statuses.             |
+| Field     | Description                                                         |
+| --------- | ------------------------------------------------------------------- |
+| `issues?` | Keep current per-field issues. Use `['error']` to keep only errors. |
+| `refs?`   | Keep registered HTML element references.                            |
+| `fields?` | Keep current field statuses and issues.                             |
 
 ### `FormResetFieldOptions<Value>`
 
@@ -459,20 +544,20 @@ Snapshot read from `field.store.state`.
 ### `FieldResetKeepOptions`
 
 ```ts
-{ errors?: boolean; refs?: boolean; status?: boolean }
+{ issues?: true | Array<'error' | Level>; refs?: boolean; status?: boolean }
 ```
 
 ---
 
-## Error handling types
+## Error and issue handling types
 
-| Type                               | Definition                                                              |
-| ---------------------------------- | ----------------------------------------------------------------------- |
-| `FormErrorsOptions`                | `{ nested?: boolean }`                                                  |
-| `FormSetErrorsOptions`             | `{ mode?: FieldSetErrorsMode }`                                         |
-| `FieldSetErrorsMode`               | `'replace' \| 'append' \| 'keep'`                                       |
-| `FormSubmitSuccessHandler<Values>` | `(values: Values, form: FormApi<Values>) => void \| Promise<void>`      |
-| `FormSubmitErrorHandler<Values>`   | `(issues: FormIssue[], form: FormApi<Values>) => void \| Promise<void>` |
+| Type                               | Definition                                                                    |
+| ---------------------------------- | ----------------------------------------------------------------------------- |
+| `FormIssuesOptions`                | `{ nested?: boolean }`                                                        |
+| `FormSetIssuesOptions`             | `{ mode?: FieldSetIssuesMode }`                                               |
+| `FieldSetIssuesMode`               | `'replace' \| 'append' \| 'keep'`                                             |
+| `FormSubmitSuccessHandler<Values>` | `(values: Values, form: FormApi<Values>) => void \| Promise<void>`            |
+| `FormSubmitErrorHandler<Values>`   | `(issues: FormIssuesByLevel, form: FormApi<Values>) => void \| Promise<void>` |
 
 ---
 

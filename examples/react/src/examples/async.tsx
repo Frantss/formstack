@@ -30,9 +30,13 @@ export const Example_Async = () => {
   const form = useForm({
     schema,
     defaultValues: { username: '', email: '' },
-    validate: {
-      change: asyncSchema,
-      submit: asyncSchema,
+    checks: {
+      error: {
+        validate: {
+          change: asyncSchema,
+          submit: asyncSchema,
+        },
+      },
     },
   });
 

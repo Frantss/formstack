@@ -7,17 +7,17 @@ import { update } from '#utils/update';
 import type { Updater } from '#utils/update/updater-';
 import { batch } from '@tanstack/store';
 
-export class FormCoreArray<Values> {
-  private fields: FormCoreFields<Values>;
-  private field: FormCoreField<Values>;
+export class FormCoreArray<Values, Level extends string = string> {
+  private fields: FormCoreFields<Values, Level>;
+  private field: FormCoreField<Values, Level>;
 
   constructor({
     fields,
     field,
   }: {
-    core: FormCore<Values>;
-    fields: FormCoreFields<Values>;
-    field: FormCoreField<Values>;
+    core: FormCore<Values, Level>;
+    fields: FormCoreFields<Values, Level>;
+    field: FormCoreField<Values, Level>;
   }) {
     this.field = field;
     this.fields = fields;

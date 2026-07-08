@@ -1,5 +1,6 @@
 import { expect, it } from 'vite-plus/test';
 
+import { itAppliesArrayFieldStatus, itKeepsSiblingValue } from '#tests/form-core-array/behavior';
 import { setup } from '#tests/form-core-array/setup';
 
 it('removes an item at the provided index', () => {
@@ -29,41 +30,17 @@ it('normalizes out-of-range index to last index', () => {
   expect(value).toEqual(['item1']);
 });
 
-it('marks the array field as dirty by default', () => {
+it('removes from an absent array value as an empty array', () => {
   const context = setup();
 
+  context.field.change('array', undefined as never);
   context.array.remove('array', 0);
-  const status = context.field.status('array');
+  const value = context.field.get('array');
 
-  expect(status.dirty).toBe(true);
+  expect(value).toEqual([]);
 });
 
-it('marks the array field as touched by default', () => {
-  const context = setup();
-
-  context.array.remove('array', 0);
-  const status = context.field.status('array');
-
-  expect(status.touched).toBe(true);
-});
-
-it('does not mark the array field as dirty when should.dirty is false', () => {
-  const context = setup();
-
-  context.array.remove('array', 0, { should: { dirty: false } });
-  const status = context.field.status('array');
-
-  expect(status.dirty).toBe(false);
-});
-
-it('does not mark the array field as touched when should.touch is false', () => {
-  const context = setup();
-
-  context.array.remove('array', 0, { should: { touch: false } });
-  const status = context.field.status('array');
-
-  expect(status.touched).toBe(false);
-});
+itAppliesArrayFieldStatus('remove', (context, options) => context.array.remove('array', 0, options));
 
 it('moves index 1 field entry id to index 0 after removing index 0', () => {
   const context = setup();
@@ -84,11 +61,16 @@ it('removes trailing field entry after shifting', () => {
   expect(entry).toBeUndefined();
 });
 
-it('keeps sibling values unchanged', () => {
+itKeepsSiblingValue('remove', (context, options) => context.array.remove('array', 0, options));
+
+it('shifts issues with remaining entries', () => {
   const context = setup();
 
-  context.array.remove('array', 0);
-  const value = context.field.get('sibling');
+  context.field.setIssues('array.1', {
+    warning: [{ level: 'warning', issue: { code: 'custom', message: 'array warning', path: ['array', 1] } as never }],
+  });
 
-  expect(value).toBe('sibling');
+  context.array.remove('array', 0);
+
+  expect(context.fields.get('array.0').issues.warning).toHaveLength(1);
 });

@@ -15,10 +15,11 @@ allowing you to build forms with ease.
 
 - Synchronous and asynchronous validation
 - Per-event validators (`change`, `blur`, `focus`, `submit`)
+- Event-scoped issues for warnings, notices, and blocking risk checks
 - Array fields with insert / append / prepend / move / swap / remove / replace
 - Nested fields with type-safe deep paths
 - Reactive subscriptions via `@tanstack/store`
-- Programmatic error setting with `replace` / `append` / `keep` modes
+- Programmatic issues setting with `replace` / `append` / `keep` modes
 - Granular field reset and form reset with selective `keep` options
 
 ## Packages
@@ -47,7 +48,11 @@ export function SignupForm() {
   const form = useForm({
     schema,
     defaultValues: { name: '', email: '' },
-    validate: { change: schema },
+    checks: {
+      error: {
+        validate: { change: schema },
+      },
+    },
   });
 
   return (
@@ -90,6 +95,8 @@ Development setup, conventions, and architecture are documented in the
 
 - [Structure](docs/structure.md) — monorepo layout and package organization
 - [Commands](docs/commands.md) — build, test, lint, release commands
+- [Checks and issues](docs/checks-and-issues.md) — warnings, notices, blocking risk checks,
+  and issue validation behavior
 - [Form core behaviors](docs/form-core-behaviors.md) — canonical specification
   of every method's expected behavior
 - [Testing](docs/testing.md) — Vitest + Playwright browser testing patterns

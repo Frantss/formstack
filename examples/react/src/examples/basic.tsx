@@ -23,7 +23,11 @@ export const Example_Basic = () => {
       bio: '',
       role: 'developer' as const,
     },
-    validate: { change: schema },
+    checks: {
+      error: {
+        validate: { change: schema },
+      },
+    },
   });
 
   useEffect(() => {

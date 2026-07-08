@@ -26,6 +26,7 @@ bun run fix:all          # auto-fix all
 
 - [Structure](./docs/structure.md) - Monorepo layout and package organization
 - [Commands Reference](./docs/commands.md) - All available commands and usage
+- [Checks and Issues Reference](./docs/checks-and-issues.md) - Check and issue validation behavior
 - [Testing Patterns](./docs/testing.md) - Vitest + Playwright browser testing
 - [TypeScript Conventions](./docs/typescript.md) - Type patterns and API design
 - [Code Style](./docs/code-style.md) - Imports, formatting, namings

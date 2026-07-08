@@ -44,7 +44,7 @@ it('does not mark a descendant field as touched when focusing a parent field', (
 
 it('does not validate by default when focusing a field', () => {
   const context = setup();
-  const validate = vi.spyOn(context.core, 'validate').mockResolvedValue([true, []]);
+  const validate = vi.spyOn(context.core, 'validate').mockResolvedValue([true, { error: [] }]);
 
   context.field.focus('name');
 
@@ -53,29 +53,36 @@ it('does not validate by default when focusing a field', () => {
 
 it('validates by default when focusing a field and a focus validator is configured', () => {
   const context = setup({
-    validate: {
-      focus: z.object({
-        name: z.string(),
-      }),
+    checks: {
+      error: {
+        validate: {
+          focus: z.object({
+            name: z.string(),
+          }),
+        },
+      },
     },
   });
-  const validate = vi.spyOn(context.core, 'validate').mockResolvedValue([true, []]);
+  const validate = vi.spyOn(context.core, 'validate').mockResolvedValue([true, { error: [] }]);
 
   context.field.focus('name');
 
-  expect(validate).toHaveBeenCalledOnce();
-  expect(validate).toHaveBeenCalledWith('name', { type: 'focus' });
+  expect(validate.mock.calls).toEqual([['name', { type: 'focus' }]]);
 });
 
-it('skips validation when should.validate is false', () => {
+it('skips focus validation when should.validate is false', () => {
   const context = setup({
-    validate: {
-      focus: z.object({
-        name: z.string(),
-      }),
+    checks: {
+      error: {
+        validate: {
+          focus: z.object({
+            name: z.string(),
+          }),
+        },
+      },
     },
   });
-  const validate = vi.spyOn(context.core, 'validate').mockResolvedValue([true, []]);
+  const validate = vi.spyOn(context.core, 'validate').mockResolvedValue([true, { error: [] }]);
 
   context.field.focus('name', { should: { validate: false } });
 

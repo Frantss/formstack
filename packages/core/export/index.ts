@@ -18,17 +18,25 @@ export type { FieldPlugin } from '#types/api/field-plugin';
 export type { FieldPluginsInput } from '#types/api/field-plugins-input';
 export type { FieldResetKeepOptions } from '#types/api/field-reset-keep-options';
 export type { FieldResetStatus } from '#types/api/field-reset-status';
-export type { FieldSetErrorsMode } from '#types/api/field-set-errors-mode';
+export type { FieldSetIssuesMode } from '#types/api/field-set-issues-mode';
 export type { FieldState } from '#types/api/field-state';
 export type { FieldStatus } from '#types/api/field-status';
 export type { FieldStore } from '#types/api/field-store';
-export type { FormErrorsOptions } from '#types/api/form-errors-options';
+export type { FormIssuesOptions } from '#types/api/form-issues-options';
+export type {
+  FormIssueEntry,
+  FormIssueLevel,
+  FormIssuesByLevel,
+  FormIssuesByLevelInput,
+  FormErrorIssueLevel,
+} from '#types/api/form-issue-entry';
+export type { FormChecksMap, FormCheckValidator } from '#types/api/form-checks-map';
 export type { FormIssue } from '#types/api/form-issue';
 export type { FormOptions } from '#types/api/form-options';
 export type { FormResetFieldOptions } from '#types/api/form-reset-field-options';
 export type { FormResetKeepOptions } from '#types/api/form-reset-keep-options';
 export type { FormResetOptions } from '#types/api/form-reset-options';
-export type { FormSetErrorsOptions } from '#types/api/form-set-errors-options';
+export type { FormSetIssuesOptions } from '#types/api/form-set-issues-options';
 export type { FormStatus } from '#types/api/form-status';
 export type { FormStore } from '#types/api/form-store';
 export type { FormSubmitErrorHandler } from '#types/api/form-submit-error-handler';
@@ -41,6 +49,7 @@ export type { AnyFormApi } from '#types/form/any-form-api';
 export type { AnyFormLikeApi } from '#types/form/any-form-like-api';
 export type { ApiSelector } from '#types/form/api-selector';
 export type { FormArrayFields } from '#types/form/form-array-fields';
+export type { FormIssueLevels, InferFormIssueLevels } from '#types/form/form-issue-levels';
 export type { FormFieldValue } from '#types/form/form-field-value';
 export type { FormFields } from '#types/form/form-fields';
 export type { FormLikeStore } from '#types/form/form-like-store';

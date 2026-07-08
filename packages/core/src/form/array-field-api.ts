@@ -13,8 +13,8 @@ type ArrayFieldApiOptions = {
   name: string;
 };
 
-export class ArrayFieldApi<Value extends ArrayLike> {
-  private field!: FieldApi<Value>;
+export class ArrayFieldApi<Value extends ArrayLike, Level extends string = string> {
+  private field!: FieldApi<Value, Level>;
 
   constructor(options: ArrayFieldApiOptions) {
     this.field = createField(options);

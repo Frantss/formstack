@@ -32,7 +32,11 @@ export const Example_Effect = () => {
   const form = useForm({
     schema,
     defaultValues: { name: '3213', directions: undefined },
-    validate: { change: schema },
+    checks: {
+      error: {
+        validate: { change: schema },
+      },
+    },
   });
 
   const name = useFieldApi({ form, name: 'name' });

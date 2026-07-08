@@ -45,7 +45,7 @@ it('does not mark a descendant field as blurred when blurring a parent field', (
 
 it('does not validate by default when blurring a field', () => {
   const context = setup();
-  const validate = vi.spyOn(context.core, 'validate').mockResolvedValue([true, []]);
+  const validate = vi.spyOn(context.core, 'validate').mockResolvedValue([true, { error: [] }]);
 
   context.field.blur('name');
 
@@ -54,29 +54,36 @@ it('does not validate by default when blurring a field', () => {
 
 it('validates by default when blurring a field and a blur validator is configured', () => {
   const context = setup({
-    validate: {
-      blur: z.object({
-        name: z.string(),
-      }),
+    checks: {
+      error: {
+        validate: {
+          blur: z.object({
+            name: z.string(),
+          }),
+        },
+      },
     },
   });
-  const validate = vi.spyOn(context.core, 'validate').mockResolvedValue([true, []]);
+  const validate = vi.spyOn(context.core, 'validate').mockResolvedValue([true, { error: [] }]);
 
   context.field.blur('name');
 
-  expect(validate).toHaveBeenCalledOnce();
-  expect(validate).toHaveBeenCalledWith('name', { type: 'blur' });
+  expect(validate.mock.calls).toEqual([['name', { type: 'blur' }]]);
 });
 
-it('skips validation when should.validate is false', () => {
+it('skips blur validation when should.validate is false', () => {
   const context = setup({
-    validate: {
-      blur: z.object({
-        name: z.string(),
-      }),
+    checks: {
+      error: {
+        validate: {
+          blur: z.object({
+            name: z.string(),
+          }),
+        },
+      },
     },
   });
-  const validate = vi.spyOn(context.core, 'validate').mockResolvedValue([true, []]);
+  const validate = vi.spyOn(context.core, 'validate').mockResolvedValue([true, { error: [] }]);
 
   context.field.blur('name', { should: { validate: false } });
 

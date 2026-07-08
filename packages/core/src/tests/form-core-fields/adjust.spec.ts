@@ -12,7 +12,7 @@ it('adds entries for new value paths', () => {
   expect(entry).toEqual({
     id: entry.id,
     status: { dirty: false, touched: false, blurred: false },
-    errors: [],
+    issues: { error: [] },
     ref: null,
   });
 });
@@ -55,7 +55,7 @@ it('adds new entries using wildcard defaults', () => {
   expect(entry).toEqual({
     id: entry.id,
     status: { dirty: false, touched: true, blurred: false },
-    errors: [],
+    issues: { error: [] },
     ref: null,
   });
 });

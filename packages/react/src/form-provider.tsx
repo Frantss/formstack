@@ -10,7 +10,9 @@ export function FormProvider({ form, children }: { form: AnyFormApi; children: R
   return <FormContext.Provider value={value}>{children}</FormContext.Provider>;
 }
 
-export const useFormContext = <Values = unknown,>({ id }: { id?: string } | FormOptions<Values> = {}) => {
+export const useFormContext = <Values = unknown, Level extends string = string>({
+  id,
+}: { id?: string } | FormOptions<Values, Level> = {}) => {
   const context = useContext(FormContext);
 
   if (!context) throw new Error('Missing <FormProvider />');
@@ -19,5 +21,5 @@ export const useFormContext = <Values = unknown,>({ id }: { id?: string } | Form
 
   if (!form) throw new Error('Form not found.');
 
-  return form as FormApi<Values>;
+  return form as FormApi<Values, Level>;
 };

@@ -1,9 +1,9 @@
-import type { FormIssue } from '#types/api/form-issue';
+import type { FormIssuesByLevelInput } from '#types/api/form-issue-entry';
 import type { PersistedFieldStatus } from '#types/internal/persisted-field-status';
 
-export type FieldEntry = {
+export type FieldEntry<Level extends string = string> = {
   id: string;
   status: PersistedFieldStatus;
-  errors: FormIssue[];
+  issues: FormIssuesByLevelInput<Level>;
   ref: HTMLElement | null;
 };

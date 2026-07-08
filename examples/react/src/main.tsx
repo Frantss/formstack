@@ -5,6 +5,7 @@ import { createRoot } from 'react-dom/client';
 import { Example_Array } from './examples/array';
 import { Example_Async } from './examples/async';
 import { Example_Basic } from './examples/basic';
+import { Example_Issues } from './examples/issues';
 import { Example_Effect } from './examples/effect';
 import { Example_Transform } from './examples/transform';
 import './styles.css';
@@ -28,6 +29,12 @@ const examples = {
     description: 'Async validation and submission states with server-like checks.',
     component: Example_Async,
   },
+  issues: {
+    id: 'issues',
+    label: 'Issues',
+    description: 'Non-blocking warning levels and blocking issue levels alongside normal errors.',
+    component: Example_Issues,
+  },
   effect: {
     id: 'effect',
     label: 'Effect',
@@ -46,6 +53,7 @@ const tabs = [
   { id: examples.basic.id, label: examples.basic.label },
   { id: examples.array.id, label: examples.array.label },
   { id: examples.async.id, label: examples.async.label },
+  { id: examples.issues.id, label: examples.issues.label },
   { id: examples.effect.id, label: examples.effect.label },
   {
     id: examples.transform.id,
@@ -60,6 +68,7 @@ const Main = () => {
       examples.basic.id,
       examples.array.id,
       examples.async.id,
+      examples.issues.id,
       examples.effect.id,
       examples.transform.id,
     ]).withDefault(examples.basic.id),

@@ -38,14 +38,14 @@ it('resets target field status using wildcard and field-specific defaults', () =
   expect(entry.status).toEqual({ dirty: true, touched: true, blurred: false });
 });
 
-it('clears target field errors', () => {
+it('clears target field error issues', () => {
   const context = setup();
 
-  context.fields.set('nested.value', { errors: [issue] });
+  context.fields.set('nested.value', { issues: { error: [{ level: 'error', issue }] } });
   context.fields.reset('nested.value');
   const entry = context.fields.get('nested.value');
 
-  expect(entry.errors).toEqual([]);
+  expect(entry.issues).toEqual({ error: [] });
 });
 
 it('clears target field ref', () => {
@@ -65,7 +65,7 @@ it('resets descendant field when resetting a parent path', () => {
 
   context.fields.set('nested.value', {
     status: { dirty: true, touched: true, blurred: true },
-    errors: [issue],
+    issues: { error: [{ level: 'error', issue }] },
     ref: element,
   });
   context.fields.reset('nested');
@@ -74,7 +74,7 @@ it('resets descendant field when resetting a parent path', () => {
   expect(entry).toEqual({
     id: entry.id,
     status: { dirty: false, touched: false, blurred: false },
-    errors: [],
+    issues: { error: [] },
     ref: null,
   });
 });
@@ -85,7 +85,7 @@ it('keeps sibling field state unchanged when resetting another path', () => {
 
   context.fields.set('name', {
     status: { dirty: true, touched: true, blurred: true },
-    errors: [issue],
+    issues: { error: [{ level: 'error', issue }] },
     ref: element,
   });
   const expected = context.fields.get('name');
@@ -101,7 +101,7 @@ it('does not affect ascendant field state when resetting a descendant path', () 
 
   context.fields.set('nested', {
     status: { dirty: true, touched: true, blurred: true },
-    errors: [issue],
+    issues: { error: [{ level: 'error', issue }] },
     ref: element,
   });
   const expected = context.fields.get('nested');

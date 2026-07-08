@@ -25,7 +25,11 @@ export const Example_Transform = () => {
       monthlyIncome: 5500,
       taxRate: 0.22,
     },
-    validate: { change: schema },
+    checks: {
+      error: {
+        validate: { change: schema },
+      },
+    },
   });
 
   return (

@@ -1,5 +1,6 @@
 import { expect, it } from 'vite-plus/test';
 
+import { itAppliesArrayFieldStatus } from '#tests/form-core-array/behavior';
 import { setup } from '#tests/form-core-array/setup';
 
 it('moves an item forward in the array', () => {
@@ -29,43 +30,28 @@ it('keeps values unchanged when moving to the same index', () => {
   expect(value).toEqual(['item1', 'item2']);
 });
 
-it('marks the array field as dirty by default', () => {
+it('moves from a negative index as zero', () => {
   const context = setup();
 
+  context.array.move('array', -100, 1);
+  const value = context.field.get('array');
+
+  expect(value).toEqual(['item2', 'item1']);
+});
+
+it('moves an absent array value as an empty array', () => {
+  const context = setup();
+
+  context.field.change('array', undefined as never);
   context.array.move('array', 0, 1);
-  const status = context.field.status('array');
+  const value = context.field.get('array');
 
-  expect(status.dirty).toBe(true);
+  expect(value).toEqual([]);
 });
 
-it('marks the array field as touched by default', () => {
-  const context = setup();
+itAppliesArrayFieldStatus('move', (context, options) => context.array.move('array', 0, 1, options));
 
-  context.array.move('array', 0, 1);
-  const status = context.field.status('array');
-
-  expect(status.touched).toBe(true);
-});
-
-it('does not mark the array field as dirty when should.dirty is false', () => {
-  const context = setup();
-
-  context.array.move('array', 0, 1, { should: { dirty: false } });
-  const status = context.field.status('array');
-
-  expect(status.dirty).toBe(false);
-});
-
-it('does not mark the array field as touched when should.touch is false', () => {
-  const context = setup();
-
-  context.array.move('array', 0, 1, { should: { touch: false } });
-  const status = context.field.status('array');
-
-  expect(status.touched).toBe(false);
-});
-
-it('moves index 0 field entry id to index 1', () => {
+it('move moves index 0 field entry id to index 1', () => {
   const context = setup();
   const beforeId = context.fields.get('array.0').id;
 
@@ -75,7 +61,7 @@ it('moves index 0 field entry id to index 1', () => {
   expect(afterId).toBe(beforeId);
 });
 
-it('moves index 1 field entry id to index 0', () => {
+it('move moves index 1 field entry id to index 0', () => {
   const context = setup();
   const beforeId = context.fields.get('array.1').id;
 
@@ -83,4 +69,16 @@ it('moves index 1 field entry id to index 0', () => {
   const afterId = context.fields.get('array.0').id;
 
   expect(afterId).toBe(beforeId);
+});
+
+it('moves issues with field entries', () => {
+  const context = setup();
+
+  context.field.setIssues('array.0', {
+    warning: [{ level: 'warning', issue: { code: 'custom', message: 'array warning', path: ['array', 0] } as never }],
+  });
+
+  context.array.move('array', 0, 1);
+
+  expect(context.fields.get('array.1').issues.warning).toHaveLength(1);
 });

@@ -2,15 +2,27 @@ import { useArrayField as useBaseArrayField } from '#use-array-field';
 import { useField as useBaseField } from '#use-field';
 import { useFieldApi as useBaseFieldApi } from '#use-field-api';
 import { useForm as useBaseForm } from '#use-form';
-import { type FormApi, type FormArrayFields, type FormFields, type FormOptions } from 'oxform-core';
+import type { FormApi, FormArrayFields, FormChecksMap, FormFields, InferFormIssueLevels } from 'oxform-core';
 import { useFormContext as useBaseFormContext } from './form-provider';
 
-export const defineForm = <Values>({ options }: { options: FormOptions<Values> }) => {
-  type Form = FormApi<Values>;
+type DefineFormOptions<Values, Checks extends FormChecksMap<NoInfer<Values>, string> | undefined> = Parameters<
+  typeof useBaseForm<Values, Checks>
+>[0];
 
-  const useForm = () => useBaseForm(options);
+export const defineForm = <
+  Values,
+  const Checks extends FormChecksMap<NoInfer<Values>, string> | undefined = undefined,
+>({
+  options,
+}: {
+  options: DefineFormOptions<Values, Checks>;
+}) => {
+  type Level = InferFormIssueLevels<{ checks: Checks }>;
+  type Form = FormApi<Values, Level>;
 
-  const useFormContext = () => useBaseFormContext(options);
+  const useForm = () => useBaseForm<Values, Checks>(options);
+
+  const useFormContext = () => useBaseFormContext<Values, Level>(options as never);
 
   const useFieldApi = <Name extends FormFields<Form>>(name: Name) => {
     const form = useFormContext();

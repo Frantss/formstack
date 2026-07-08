@@ -10,10 +10,10 @@ import {
   type FieldSetOptions,
 } from '#utils/fields';
 
-export class FormCoreFields<Values> {
-  private core: FormCore<Values>;
+export class FormCoreFields<Values, Level extends string = string> {
+  private core: FormCore<Values, Level>;
 
-  constructor({ core }: { core: FormCore<Values> }) {
+  constructor({ core }: { core: FormCore<Values, Level> }) {
     this.core = core;
   }
 
@@ -21,11 +21,11 @@ export class FormCoreFields<Values> {
     return this.core.persisted.state.fields[path] ?? this.core.persisted.state.fields[`~root.${path}`];
   };
 
-  public set = (path: string, options: FieldSetOptions) => {
+  public set = (path: string, options: FieldSetOptions<Level>) => {
     this.core.persisted.setState(state => {
       return {
         ...state,
-        fields: fields_set(state.fields, path, options),
+        fields: fields_set(state.fields, path, options, this.core.options),
       };
     });
   };

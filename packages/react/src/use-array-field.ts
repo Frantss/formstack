@@ -3,12 +3,22 @@ import { createArrayField } from 'oxform-core';
 import type { UseArrayFieldReturn } from '#types/use-array-field-return';
 import { useIsomorphicLayoutEffect } from '#use-isomorphic-layout-effect';
 import { useSelector } from '@tanstack/react-store';
-import type { AnyFormApi, ArrayFieldOptions, FormArrayFields, FormFieldValue } from 'oxform-core';
+import type {
+  AnyFormApi,
+  ArrayFieldOptions,
+  ArrayLike,
+  FormArrayFields,
+  FormIssueLevels,
+  FormFieldValue,
+} from 'oxform-core';
 import { useMemo, useState } from 'react';
+
+type ArrayFieldValue<Form extends AnyFormApi, Name extends FormArrayFields<Form>> = FormFieldValue<Form, Name> &
+  ArrayLike;
 
 export const useArrayField = <Form extends AnyFormApi, const Name extends FormArrayFields<Form>>(
   options: ArrayFieldOptions<Form, Name>,
-): UseArrayFieldReturn<FormFieldValue<Form, Name>> => {
+): UseArrayFieldReturn<ArrayFieldValue<Form, Name>, FormIssueLevels<Form>> => {
   const [api] = useState(() => {
     return createArrayField({ ...options });
   });
@@ -24,7 +34,7 @@ export const useArrayField = <Form extends AnyFormApi, const Name extends FormAr
   const id = useSelector(api.store, state => state.id);
   const value = useSelector(api.store, state => state.value);
   const defaultValue = useSelector(api.store, state => state.defaultValue);
-  const errors = useSelector(api.store, state => state.errors);
+  const issues = useSelector(api.store, state => state.issues);
   const ref = useSelector(api.store, state => state.ref);
   const statusBlurred = useSelector(api.store, state => state.status.blurred);
   const statusTouched = useSelector(api.store, state => state.status.touched);
@@ -38,7 +48,7 @@ export const useArrayField = <Form extends AnyFormApi, const Name extends FormAr
       id,
       value,
       defaultValue,
-      errors,
+      issues,
       ref,
       status: {
         blurred: statusBlurred,
@@ -61,7 +71,7 @@ export const useArrayField = <Form extends AnyFormApi, const Name extends FormAr
     id,
     value,
     defaultValue,
-    errors,
+    issues,
     ref,
     statusBlurred,
     statusTouched,
@@ -69,5 +79,5 @@ export const useArrayField = <Form extends AnyFormApi, const Name extends FormAr
     statusDefault,
     statusValid,
     statusPristine,
-  ]) as UseArrayFieldReturn<FormFieldValue<Form, Name>>;
+  ]) as UseArrayFieldReturn<ArrayFieldValue<Form, Name>, FormIssueLevels<Form>>;
 };

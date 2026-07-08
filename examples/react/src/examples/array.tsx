@@ -18,7 +18,11 @@ export const Example_Array = () => {
   const form = useForm({
     schema,
     defaultValues: { directions: [] },
-    validate: { change: schema },
+    checks: {
+      error: {
+        validate: { change: schema },
+      },
+    },
   });
 
   useEffect(() => {

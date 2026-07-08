@@ -110,6 +110,37 @@ body {
   font-style: italic;
 }
 
+.field-issues {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.field-issue {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #4a3b14;
+  background: #241d0b;
+  color: #f6d28b;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.field-issue strong {
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 11px;
+}
+
+.field-issue[data-level='risk'] {
+  border-color: #5a2020;
+  background: #2a1010;
+  color: #fca5a5;
+}
+
 .input {
   padding: 10px 12px;
   font-size: 14px;

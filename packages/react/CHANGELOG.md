@@ -1,5 +1,19 @@
 # oxform-react
 
+## 0.5.0
+
+### Minor Changes
+
+- Add checks and issues APIs for form and field validation flows.
+  - Expose issue-based state, status, setters, reset options, submit handlers, and checks maps from core.
+  - Add React bindings and status helpers for issue-aware form and field usage.
+  - Document checks and issues behavior, update examples, and expand validation coverage.
+
+### Patch Changes
+
+- Updated dependencies
+  - oxform-core@0.5.0
+
 ## 0.4.0
 
 ### Minor Changes

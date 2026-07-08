@@ -1,13 +1,15 @@
-import type { FormIssue } from '#types/api/form-issue';
 import { expect, it } from 'vite-plus/test';
 
 import { setup } from '#tests/form-core-field/setup';
 
-const issue: FormIssue = {
-  code: 'custom',
-  message: 'Issue',
-  path: ['name'],
-} as never;
+const issue = {
+  level: 'error' as const,
+  issue: {
+    code: 'custom',
+    message: 'Issue',
+    path: ['name'],
+  } as never,
+};
 
 it('resets a field value to its default value', () => {
   const context = setup();
@@ -89,12 +91,12 @@ it('resets field status using wildcard and per-field defaults', () => {
   });
 });
 
-it('clears field errors after reset', () => {
+it('clears field error issues after reset', () => {
   const context = setup();
 
-  context.field.setErrors('name', [issue]);
+  context.field.setIssues('name', { error: [issue] });
   context.field.reset('name');
-  const errors = context.field.errors('name');
+  const errors = context.field.issues('name').error;
 
   expect(errors).toEqual([]);
 });

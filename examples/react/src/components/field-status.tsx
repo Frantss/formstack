@@ -16,7 +16,7 @@ const formatValue = (value: unknown) => {
   return JSON.stringify(value);
 };
 
-export const FieldStatus = ({ field }: { field: UseFieldReturn<any> }) => {
+export const FieldStatus = ({ field }: { field: UseFieldReturn<any, any> }) => {
   return (
     <div className='field-status'>
       <span className='status-tag' data-on={true}>

@@ -23,14 +23,14 @@ const defaultValues = {
 type Values = z.infer<typeof schema>;
 
 export const setup = (options?: {
-  validate?: FormOptions<Values>['validate'];
+  checks?: FormOptions<Values>['checks'];
   defaultStatus?: FormOptions<Values>['defaultStatus'];
   defaultFieldStatus?: FormOptions<Values>['defaultFieldStatus'];
 }) => {
   const core = new FormCore<Values>({
     schema,
     defaultValues,
-    validate: options?.validate,
+    checks: options?.checks,
     defaultStatus: options?.defaultStatus,
     defaultFieldStatus: options?.defaultFieldStatus,
   });

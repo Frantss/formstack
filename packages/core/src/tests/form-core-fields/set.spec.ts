@@ -22,13 +22,13 @@ it('updates target entry status', () => {
   });
 });
 
-it('updates target entry errors', () => {
+it('updates target entry error issues', () => {
   const context = setup();
 
-  context.fields.set('name', { errors: [issue] });
+  context.fields.set('name', { issues: { error: [{ level: 'error', issue }] } });
   const entry = context.fields.get('name');
 
-  expect(entry.errors).toEqual([issue]);
+  expect(entry.issues).toEqual({ error: [{ level: 'error', issue }] });
 });
 
 it('updates target entry ref', () => {
@@ -54,13 +54,13 @@ it('updates ascendant entry when setting a descendant path', () => {
   });
 });
 
-it('does not propagate errors to ascendant entries when setting a descendant path', () => {
+it('does not propagate error issues to ascendant entries when setting a descendant path', () => {
   const context = setup();
   const expected = context.fields.get('nested');
 
   context.fields.set('nested.value', {
     status: { touched: true },
-    errors: [issue],
+    issues: { error: [{ level: 'error', issue }] },
   });
   const entry = context.fields.get('nested');
 

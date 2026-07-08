@@ -53,19 +53,23 @@
 - Clears stored ref for target field.
 - Does not affect sibling refs.
 
-### `errors(name, options?)`
+### `issues(name, options?)`
 
-- Returns errors for target field.
-- `nested: true` aggregates errors for descendant paths.
-- Without `nested`, returns only target field errors.
+- Returns issues for target field, grouped by issue level.
+- `nested: true` aggregates issues for descendant paths.
+- Without `nested`, returns only target field issues.
+- Includes configured issue levels with empty arrays when no issues exist for that level.
+- Includes the reserved `error` level for normal validation errors.
 
-### `setErrors(name, errors, options?)`
+### `setIssues(name, issues, options?)`
 
+- Accepts issues grouped by level.
 - Supports modes:
-  - `replace` (default): replace existing errors
-  - `append`: append to existing errors
-  - `keep`: keep existing if non-empty, otherwise set new errors
-- Updates form validity (`status.valid`) when errors are set/cleared.
+  - `replace` (default): replace existing issues
+  - `append`: append to existing issues
+  - `keep`: keep existing if non-empty, otherwise set new issues
+- Manual issues may omit `type`.
+- Updates form validity (`status.valid`) when error or blocking issues are set/cleared.
 
 ### `reset(name, options?)`
 
@@ -75,25 +79,31 @@
   - `dirty = false`
   - `touched = false`
   - `blurred = false`
-  - `errors = []`
+  - `issues = []`
 - Does not affect sibling values.
 
 ## FormCore
 
 ### `validate(fields?, options?)`
 
-- Validates current form values with the selected schema.
-- Uses event schema when `options.type` is provided (`change`, `blur`, `focus`, `submit`), otherwise uses the base form schema.
+- Validates current form values with the unified issues pipeline.
+- Uses `issues.error.validate[options.type]` for event-specific error validation. Submit falls back to the root `schema`; change/blur/focus run error validation only when configured.
+- Uses all configured issue events plus the root `schema` when `options.type` is omitted.
 - `fields` behavior:
-  - Omitted: validates the entire form and updates all field errors.
+  - Omitted: validates issues for the entire form and updates all field issues for the selected event scope.
   - Single field: validates that field path and descendants.
   - Field list: validates each provided path and descendants.
-- When validating a subset of fields, non-target field errors remain unchanged.
-- Always rewrites errors for targeted fields (including clearing stale errors when field becomes valid).
-- Sets `status.validating = true` during validation and `false` after field states are updated.
+- When validating a subset of fields, non-target field issues remain unchanged.
+- Rewrites event-produced issues for targeted fields and selected event scope.
+- Preserves manual issues, which have no `type`.
+- Preserves issues from other events when validating a single event.
+- Clears stale issues for targeted fields when the selected event no longer emits issues.
+- Sets `status.validating = true` during async validation and `false` after field states are updated.
+- Ignores stale async issue results when the validated target changes before the result resolves.
 - Returns `[valid, issues]`:
-  - `valid = true` when no issues were found
-  - `valid = false` when issues were found
+  - `valid = true` when the run emitted no `error` or blocking issues
+  - `valid = false` when the run emitted at least one `error` or blocking issue
+- The returned `valid` value describes that validation run, not complete form validity.
 
 ## FormApi
 
@@ -123,11 +133,11 @@
 - On run:
   - sets `status.submitting = true` and `status.dirty = true`
   - runs `validate(undefined, { type: 'submit' })`
-  - when valid: calls `onSuccess(values, formApi)`
-  - when invalid: calls `onError?.(issues, formApi)`
+  - when submit validation passes and no current blocking issues exist: calls `onSuccess(values, formApi)`
+  - otherwise: calls `onError?.(issues, formApi)`
   - increments `status.submits`
   - sets `status.submitting = false`
-  - sets `status.successful` to the validation result
+  - sets `status.successful` to the submit result
 
 ## FieldApi
 
@@ -159,9 +169,9 @@
 
 - Proxies register/unregister for the bound field.
 
-### `errors(options?)` / `setErrors(errors, options?)`
+### `issues(options?)` / `setIssues(issues, options?)`
 
-- Reads/updates errors for the bound field.
+- Reads/updates issues for the bound field.
 
 ### `reset(options?)`
 
@@ -169,7 +179,7 @@
 
 ### `store()` / `state()`
 
-- `store()` returns a derived store with `{ value, defaultValue, errors, status }`.
+- `store()` returns a derived store with `{ value, defaultValue, issues, status }`.
 - `state()` returns the current value of that derived store.
 
 ### `~mount()` / `~update(options)`
@@ -201,7 +211,7 @@
 
 ### `store` / `state`
 
-- `store` is a derived store with `{ value, defaultValue }`.
+- `store` is a derived store with `{ value, defaultValue, errors, issues, status }`.
 - `state` returns the current value of that derived store.
 
 ### `~mount()` / `~update(options)`

@@ -1,6 +1,6 @@
 import type { EventLike, FieldApi } from 'oxform-core';
 
-export type UseFieldReturn<Value> = FieldApi<Value> & {
+export type UseFieldReturn<Value, Level extends string = string> = FieldApi<Value, Level> & {
   props: {
     value: Value;
     ref: (element: HTMLElement | null) => void;

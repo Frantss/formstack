@@ -1,5 +1,6 @@
 import { expect, it } from 'vite-plus/test';
 
+import { itAppliesArrayFieldStatus, itKeepsSiblingValue } from '#tests/form-core-array/behavior';
 import { setup } from '#tests/form-core-array/setup';
 
 it('replaces array values with provided array', () => {
@@ -20,40 +21,23 @@ it('replaces array values with updater function', () => {
   expect(value).toEqual(['item1', 'item2', 'item3']);
 });
 
-it('marks the array field as dirty by default', () => {
+itAppliesArrayFieldStatus('replace', (context, options) => context.array.replace('array', ['new1'], options));
+
+it('does not set array field status when replace dirty and touch flags are false', () => {
   const context = setup();
 
-  context.array.replace('array', ['new1']);
+  context.array.replace('array', ['new1'], {
+    should: {
+      dirty: false,
+      touch: false,
+    },
+  });
   const status = context.field.status('array');
 
-  expect(status.dirty).toBe(true);
-});
-
-it('marks the array field as touched by default', () => {
-  const context = setup();
-
-  context.array.replace('array', ['new1']);
-  const status = context.field.status('array');
-
-  expect(status.touched).toBe(true);
-});
-
-it('does not mark the array field as dirty when should.dirty is false', () => {
-  const context = setup();
-
-  context.array.replace('array', ['new1'], { should: { dirty: false } });
-  const status = context.field.status('array');
-
-  expect(status.dirty).toBe(false);
-});
-
-it('does not mark the array field as touched when should.touch is false', () => {
-  const context = setup();
-
-  context.array.replace('array', ['new1'], { should: { touch: false } });
-  const status = context.field.status('array');
-
-  expect(status.touched).toBe(false);
+  expect(status).toMatchObject({
+    dirty: false,
+    touched: false,
+  });
 });
 
 it('creates field entries for all replaced indices', () => {
@@ -65,7 +49,7 @@ it('creates field entries for all replaced indices', () => {
   expect(entry).toEqual({
     id: entry.id,
     status: { dirty: false, touched: false, blurred: false },
-    errors: [],
+    issues: { error: [] },
     ref: null,
   });
 });
@@ -79,11 +63,4 @@ it('removes field entries beyond new length', () => {
   expect(entry).toBeUndefined();
 });
 
-it('keeps sibling values unchanged', () => {
-  const context = setup();
-
-  context.array.replace('array', ['new1']);
-  const value = context.field.get('sibling');
-
-  expect(value).toBe('sibling');
-});
+itKeepsSiblingValue('replace', (context, options) => context.array.replace('array', ['new1'], options));

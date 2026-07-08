@@ -1,5 +1,5 @@
-import type { FormApi } from 'oxform-core';
+import type { AnyFormApi } from 'oxform-core';
 
-export type UseFormStatusProps<Values> = {
-  form: FormApi<Values>;
+export type UseFormStatusProps<Form extends AnyFormApi> = {
+  form: Form;
 };

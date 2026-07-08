@@ -104,7 +104,7 @@ it('does not mark a descendant field as touched when changing its parent field',
 
 it('does not validate by default when changing a field', () => {
   const context = setup();
-  const validate = vi.spyOn(context.core, 'validate').mockResolvedValue([true, []]);
+  const validate = vi.spyOn(context.core, 'validate').mockResolvedValue([true, { error: [] }]);
 
   context.field.change('name', 'updated');
 
@@ -113,29 +113,36 @@ it('does not validate by default when changing a field', () => {
 
 it('validates by default when changing a field and a change validator is configured', () => {
   const context = setup({
-    validate: {
-      change: z.object({
-        name: z.string(),
-      }),
+    checks: {
+      error: {
+        validate: {
+          change: z.object({
+            name: z.string(),
+          }),
+        },
+      },
     },
   });
-  const validate = vi.spyOn(context.core, 'validate').mockResolvedValue([true, []]);
+  const validate = vi.spyOn(context.core, 'validate').mockResolvedValue([true, { error: [] }]);
 
   context.field.change('name', 'updated');
 
-  expect(validate).toHaveBeenCalledOnce();
-  expect(validate).toHaveBeenCalledWith('name', { type: 'change' });
+  expect(validate.mock.calls).toEqual([['name', { type: 'change' }]]);
 });
 
-it('skips validation when should.validate is false', () => {
+it('skips change validation when should.validate is false', () => {
   const context = setup({
-    validate: {
-      change: z.object({
-        name: z.string(),
-      }),
+    checks: {
+      error: {
+        validate: {
+          change: z.object({
+            name: z.string(),
+          }),
+        },
+      },
     },
   });
-  const validate = vi.spyOn(context.core, 'validate').mockResolvedValue([true, []]);
+  const validate = vi.spyOn(context.core, 'validate').mockResolvedValue([true, { error: [] }]);
 
   context.field.change('name', 'updated', { should: { validate: false } });
 
@@ -149,14 +156,24 @@ it('batches value and status updates into a single store notification', () => {
   context.core.persisted.subscribe(listener);
   context.field.change('name', 'updated', { should: { validate: false } });
 
-  // core.set + fields.set are batched, so listeners fire only once
   expect(listener).toHaveBeenCalledOnce();
+});
 
-  // Verify both value and status were applied in the same notification
-  const value = context.field.get('name');
-  const status = context.field.status('name');
+it('applies the field value during the batched change notification', () => {
+  const context = setup();
 
-  expect(value).toBe('updated');
-  expect(status.touched).toBe(true);
-  expect(status.dirty).toBe(true);
+  context.field.change('name', 'updated', { should: { validate: false } });
+
+  expect(context.field.get('name')).toBe('updated');
+});
+
+it('applies field status during the batched change notification', () => {
+  const context = setup();
+
+  context.field.change('name', 'updated', { should: { validate: false } });
+
+  expect(context.field.status('name')).toMatchObject({
+    dirty: true,
+    touched: true,
+  });
 });

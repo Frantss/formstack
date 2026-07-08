@@ -3,9 +3,13 @@ type FieldErrorField = {
     status: {
       valid: boolean;
     };
-    errors: Array<{
-      message: string;
-    }>;
+    issues: {
+      error: Array<{
+        issue: {
+          message: string;
+        };
+      }>;
+    };
   };
 };
 
@@ -14,5 +18,5 @@ export const FieldError = ({ field }: { field: FieldErrorField }) => {
     return null;
   }
 
-  return <span className='field-error'>{field.state.errors.map(error => error.message).join(', ')}</span>;
+  return <span className='field-error'>{field.state.issues.error.map(error => error.issue.message).join(', ')}</span>;
 };

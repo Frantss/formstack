@@ -1,5 +1,7 @@
 import { DEFAULT_FIELD_STATUS } from '#constants';
 import type { FormOptions } from '#types/api/form-options';
+import { checksEngine_issueLevels } from '#utils/checks-issues-engine';
+import { issues_empty, issues_normalize } from '#utils/issues';
 import { buildPathsMap } from '#utils/build-paths-map';
 import type { FieldEntry } from '#utils/fields/field-entry';
 import type { FieldSetOptions } from '#utils/fields/field-set-options';
@@ -25,7 +27,12 @@ export const fields_pathWithoutRoot = (path: string) => {
   return fixed;
 };
 
-export const fields_build = (options: FormOptions<any>, values: unknown = options.defaultValues): PersistedFields => {
+export const fields_build = <Level extends string = string>(
+  options: FormOptions<any, Level>,
+  values: unknown = options.defaultValues,
+): PersistedFields<Level> => {
+  const issueLevels = checksEngine_issueLevels(options);
+
   const build = (path: string) => {
     return {
       id: generateId(),
@@ -34,31 +41,37 @@ export const fields_build = (options: FormOptions<any>, values: unknown = option
         ...options?.defaultFieldStatus?.['*'],
         ...options?.defaultFieldStatus?.[fields_pathWithoutRoot(path)],
       },
-      errors: [],
+      issues: issues_empty(issueLevels),
       ref: null,
-    } satisfies FieldEntry;
+    } satisfies FieldEntry<Level>;
   };
 
   return {
     [fields_root]: build(fields_root),
     ...buildPathsMap(values, build, fields_root),
-  } satisfies PersistedFields;
+  } satisfies PersistedFields<Level>;
 };
 
-export const fields_set = (fields: PersistedFields, path: string, field: FieldSetOptions): PersistedFields => {
+export const fields_set = <Level extends string = string>(
+  fields: PersistedFields<Level>,
+  path: string,
+  field: FieldSetOptions<Level>,
+  options?: Pick<FormOptions<any, Level>, 'checks'>,
+): PersistedFields<Level> => {
   const fixed = fields_pathWithRoot(path);
   const paths = getAscendantPaths(fixed);
+  const issueLevels = checksEngine_issueLevels(options ?? {});
   const updated = paths.reduce((acc, curr) => {
     const entry = fields[curr];
     const target = curr === fixed;
-    const errors = target ? (field.errors ?? entry.errors) : entry.errors;
+    const issues = target && field.issues !== undefined ? issues_normalize(field.issues, issueLevels) : entry.issues;
     const ref = target ? (field.ref !== undefined ? field.ref : entry.ref) : entry.ref;
 
     return {
       ...acc,
       [curr]: {
         ...entry,
-        errors,
+        issues,
         ref,
         status: {
           dirty: field.status?.dirty ?? entry.status.dirty,
@@ -75,7 +88,10 @@ export const fields_set = (fields: PersistedFields, path: string, field: FieldSe
   };
 };
 
-export const fields_delete = (fields: PersistedFields, path: string): PersistedFields => {
+export const fields_delete = <Level extends string = string>(
+  fields: PersistedFields<Level>,
+  path: string,
+): PersistedFields<Level> => {
   const fixed = fields_pathWithRoot(path);
 
   return Object.fromEntries(
@@ -86,11 +102,11 @@ export const fields_delete = (fields: PersistedFields, path: string): PersistedF
 };
 
 export const fields_reset = (
-  fields: PersistedFields,
+  fields: PersistedFields<any>,
   path: string,
-  options: FormOptions<any>,
+  options: FormOptions<any, any>,
   values: unknown = options.defaultValues,
-): PersistedFields => {
+): PersistedFields<any> => {
   const deleted = fields_delete(fields, path);
   const updated = fields_build(options, values);
 
@@ -101,11 +117,11 @@ export const fields_reset = (
 };
 
 export const fields_shift = (
-  fields: PersistedFields,
+  fields: PersistedFields<any>,
   path: string,
   position: number,
   direction: 'left' | 'right',
-): PersistedFields => {
+): PersistedFields<any> => {
   const fixed = fields_pathWithRoot(path);
   let index = position;
   const left = direction === 'left';
@@ -132,7 +148,12 @@ export const fields_shift = (
   return updated;
 };
 
-export const fields_swap = (fields: PersistedFields, path: string, from: number, to: number): PersistedFields => {
+export const fields_swap = (
+  fields: PersistedFields<any>,
+  path: string,
+  from: number,
+  to: number,
+): PersistedFields<any> => {
   const fixed = fields_pathWithRoot(path);
   const fromPath = `${fixed}.${from}`;
   const toPath = `${fixed}.${to}`;
@@ -149,7 +170,12 @@ export const fields_swap = (fields: PersistedFields, path: string, from: number,
   return updated;
 };
 
-export const fields_move = (fields: PersistedFields, path: string, from: number, to: number): PersistedFields => {
+export const fields_move = (
+  fields: PersistedFields<any>,
+  path: string,
+  from: number,
+  to: number,
+): PersistedFields<any> => {
   const fixed = fields_pathWithRoot(path);
   const updated = { ...fields };
 
@@ -161,7 +187,7 @@ export const fields_move = (fields: PersistedFields, path: string, from: number,
   const end = Math.max(from, to);
   const backwards = from > to;
 
-  const setOrDelete = (targetPath: string, entry: FieldEntry | undefined) => {
+  const setOrDelete = (targetPath: string, entry: FieldEntry<any> | undefined) => {
     if (entry) updated[targetPath] = entry;
     else delete updated[targetPath];
   };
@@ -181,7 +207,7 @@ export const fields_move = (fields: PersistedFields, path: string, from: number,
   return updated;
 };
 
-export const fields_remove = (fields: PersistedFields, path: string, index: number): PersistedFields => {
+export const fields_remove = (fields: PersistedFields<any>, path: string, index: number): PersistedFields<any> => {
   const fixed = fields_pathWithRoot(path);
   const updated = { ...fields };
   let position = index;

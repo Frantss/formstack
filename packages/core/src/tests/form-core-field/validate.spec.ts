@@ -26,10 +26,14 @@ const setup = () => {
   const core = new FormCore<Values>({
     schema,
     defaultValues,
-    validate: {
-      change: z.object({
-        name: z.string().min(2, 'Name is too short for change'),
-      }),
+    checks: {
+      error: {
+        validate: {
+          change: z.object({
+            name: z.string().min(2, 'Name is too short for change'),
+          }),
+        },
+      },
     },
   });
   const fields = new FormCoreFields<Values>({ core });
@@ -41,44 +45,112 @@ const setup = () => {
   };
 };
 
-it('validates using current values and updates descendant field errors', async () => {
+it('does not store descendant validation errors on the parent field', async () => {
   const context = setup();
 
   await context.core.validate('nested');
 
-  expect(context.field.errors('nested')).toEqual([]);
-  expect(context.field.errors('nested.value')).toHaveLength(1);
-  expect(context.field.errors('nested.value')[0]?.message).toBe('Nested value is too short');
+  expect(context.field.issues('nested').error).toEqual([]);
 });
 
-it('clears old errors for the validated subtree and keeps unrelated field errors', async () => {
+it('stores descendant validation errors on the descendant field', async () => {
   const context = setup();
-
-  context.field.setErrors('nested.value', [
-    {
-      code: 'custom',
-      message: 'old nested issue',
-      path: ['nested', 'value'],
-    } as never,
-  ]);
-  context.field.setErrors('name', [{ code: 'custom', message: 'name issue', path: ['name'] } as never]);
 
   await context.core.validate('nested');
 
-  expect(context.field.errors('nested.value')).toHaveLength(1);
-  expect(context.field.errors('nested.value')[0]?.message).toBe('Nested value is too short');
-  expect(context.field.errors('name')).toEqual([{ code: 'custom', message: 'name issue', path: ['name'] } as never]);
+  expect(context.field.issues('nested.value').error).toHaveLength(1);
+});
+
+it('stores descendant validation error messages on the descendant field', async () => {
+  const context = setup();
+
+  await context.core.validate('nested');
+
+  expect(context.field.issues('nested.value').error[0]?.issue.message).toBe('Nested value is too short');
+});
+
+it('clears old error issues for the validated subtree', async () => {
+  const context = setup();
+
+  context.field.setIssues('nested.value', {
+    error: [
+      {
+        level: 'error',
+        issue: {
+          code: 'custom',
+          message: 'old nested issue',
+          path: ['nested', 'value'],
+        } as never,
+      },
+    ],
+  });
+  context.field.setIssues('name', {
+    error: [{ level: 'error', issue: { code: 'custom', message: 'name issue', path: ['name'] } as never }],
+  });
+
+  await context.core.validate('nested');
+
+  expect(context.field.issues('nested.value').error).toHaveLength(1);
+});
+
+it('replaces cleared subtree issues with current validation messages', async () => {
+  const context = setup();
+
+  context.field.setIssues('nested.value', {
+    error: [
+      {
+        level: 'error',
+        issue: {
+          code: 'custom',
+          message: 'old nested issue',
+          path: ['nested', 'value'],
+        } as never,
+      },
+    ],
+  });
+
+  await context.core.validate('nested');
+
+  expect(context.field.issues('nested.value').error[0]?.issue.message).toBe('Nested value is too short');
+});
+
+it('keeps unrelated field error issues when validating a subtree', async () => {
+  const context = setup();
+
+  context.field.setIssues('name', {
+    error: [{ level: 'error', issue: { code: 'custom', message: 'name issue', path: ['name'] } as never }],
+  });
+
+  await context.core.validate('nested');
+
+  expect(context.field.issues('name').error).toEqual([{ level: 'error', issue: { code: 'custom', message: 'name issue', path: ['name'] } as never }]);
+});
+
+it('uses the base validator when no validation type is provided', async () => {
+  const context = setup();
+
+  const [, baseIssues] = await context.core.validate('name');
+
+  expect(baseIssues.error).toHaveLength(1);
 });
 
 it('uses the event validator when a validation type is provided', async () => {
   const context = setup();
 
-  const [, baseIssues] = await context.core.validate('name');
   const [, changeIssues] = await context.core.validate('name', {
     type: 'change',
   });
 
-  expect(baseIssues).toHaveLength(1);
-  expect(changeIssues).toEqual([]);
-  expect(context.field.errors('name')).toEqual([]);
+  expect(changeIssues.error).toEqual([]);
+});
+
+it('clears previous field issues when the event validator passes', async () => {
+  const context = setup();
+
+  await context.core.validate('name');
+  await context.core.validate('name', {
+    type: 'change',
+  });
+
+  expect(context.field.issues('name').error).toEqual([]);
 });
